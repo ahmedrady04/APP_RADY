@@ -6,6 +6,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
+from urllib.parse import quote
 
 from dependencies.auth import get_current_user
 from services.plate_utils import normalize_plate, auto_detect_plate_col
@@ -34,6 +35,8 @@ def _cell_val(row, ci):
 async def parse_gps_excel(
     file:      UploadFile = File(...),
     label_col: str        = Form(""),
+    gps_col:   str        = Form("GPS"),
+    label_cols_json: str  = Form(""),
 ):
     content = await file.read()
     try:
@@ -50,11 +53,19 @@ async def parse_gps_excel(
 
         headers = [str(c).strip() if c is not None else "" for c in rows[0]]
 
-        gps_idx = next(
-            (i for i, h in enumerate(headers) if h.strip() == "GPS"), None
-        )
+        gps_col = (gps_col or "").strip() or "GPS"
+        gps_idx = headers.index(gps_col) if gps_col in headers else None
+        if gps_idx is None and "GPS" in headers:
+            gps_col = "GPS"
+            gps_idx = headers.index("GPS")
+        if gps_idx is None and "موقع الشارع" in headers:
+            gps_col = "موقع الشارع"
+            gps_idx = headers.index("موقع الشارع")
         if gps_idx is None:
-            raise HTTPException(status_code=400, detail="لا يوجد عمود GPS في الملف")
+            raise HTTPException(
+                status_code=400,
+                detail="لا يوجد عمود GPS أو موقع الشارع في الملف",
+            )
 
         label_col  = label_col.strip()
         label_idx  = (
@@ -62,6 +73,15 @@ async def parse_gps_excel(
             if label_col and label_col in headers
             else None
         )
+
+        label_cols: list[str] = []
+        if label_cols_json.strip():
+            try:
+                raw = json.loads(label_cols_json)
+                if isinstance(raw, list):
+                    label_cols = [str(x).strip() for x in raw if str(x).strip() and str(x).strip() in headers]
+            except Exception:
+                label_cols = []
 
         points  = []
         skipped = 0
@@ -88,7 +108,21 @@ async def parse_gps_excel(
                     and row[label_idx] is not None
                     else ""
                 )
-                points.append({"lat": lat, "lng": lng, "label": label_val})
+                fields = {}
+                for c in label_cols:
+                    ci = headers.index(c) if c in headers else None
+                    if ci is not None and ci < len(row) and row[ci] is not None:
+                        fields[c] = str(row[ci]).strip()
+                    else:
+                        fields[c] = ""
+
+                points.append({
+                    "lat": lat,
+                    "lng": lng,
+                    "label": label_val,
+                    "fields": fields,
+                    "gps_col_used": gps_col,
+                })
             except Exception:
                 skipped += 1
 
@@ -98,6 +132,7 @@ async def parse_gps_excel(
             "skipped":       skipped,
             "headers":       [h for h in headers if h],
             "label_col_used": headers[label_idx] if label_idx is not None else "",
+            "gps_col_used":  gps_col,
         })
 
     except HTTPException:
@@ -295,6 +330,80 @@ async def parse_ref_plates(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/check-ref-plate")
+async def check_ref_plate(
+    file: UploadFile = File(...),
+    plate: str = Form(""),
+    col: str = Form(""),
+):
+    raw_plate = (plate or "").strip()
+    norm_target = normalize_plate(raw_plate)
+    if not norm_target:
+        raise HTTPException(status_code=400, detail="أدخل رقم لوحة صحيح")
+
+    content = await file.read()
+    try:
+        wb = openpyxl.load_workbook(
+            io.BytesIO(content), read_only=True, data_only=True
+        )
+        ws = find_best_sheet(wb)
+        rows = list(ws.iter_rows(values_only=True))
+        if not rows:
+            return JSONResponse({
+                "exists": False,
+                "matched_plate": "",
+                "total_scanned": 0,
+                "col_used": "",
+            })
+
+        headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+        selected_col = (col or "").strip()
+        col_idx = None
+
+        if selected_col and selected_col in headers:
+            col_idx = headers.index(selected_col)
+        if col_idx is None:
+            detected = auto_detect_plate_col(headers)
+            if detected and detected in headers:
+                col_idx = headers.index(detected)
+        if col_idx is None:
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "detail": f"لم يُعثر على عمود اللوحة. الأعمدة: {headers}",
+                    "headers": headers,
+                    "code": "COL_NOT_FOUND",
+                },
+            )
+
+        total_scanned = 0
+        matched_plate = ""
+        for row in rows[1:]:
+            if all(v is None for v in row):
+                continue
+            val = row[col_idx] if col_idx < len(row) else None
+            if val is None:
+                continue
+            raw_val = str(val).strip()
+            if not raw_val:
+                continue
+            total_scanned += 1
+            if normalize_plate(raw_val) == norm_target:
+                matched_plate = raw_val
+                break
+
+        return JSONResponse({
+            "exists": bool(matched_plate),
+            "matched_plate": matched_plate,
+            "total_scanned": total_scanned,
+            "col_used": headers[col_idx],
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/export-gps-excel")
 async def export_gps_excel(
     results_json: str = Form("[]"),
@@ -405,11 +514,17 @@ async def export_gps_excel(
     content  = workbook_to_bytes(wb)
     ts       = datetime.now().strftime("%Y%m%d_%H%M")
     filename = f"أقرب_المركبات_{ts}.xlsx"
+    encoded_filename = quote(filename, safe="")
 
     return StreamingResponse(
         io.BytesIO(content),
         media_type=(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ),
-        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"},
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="nearest_vehicles_{ts}.xlsx"; '
+                f"filename*=UTF-8''{encoded_filename}"
+            )
+        },
     )

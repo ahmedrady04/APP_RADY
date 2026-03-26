@@ -64,3 +64,26 @@ def reset_device(
         return auth_reset_user_device(db=db, user_id=user_id)
     except AuthServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="لا يمكن حذف حسابك الحالي")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+
+    if user.is_admin:
+        admins_count = db.query(User).filter(User.is_admin == True).count()  # noqa: E712
+        if admins_count <= 1:
+            raise HTTPException(status_code=400, detail="لا يمكن حذف آخر Admin في النظام")
+
+    db.delete(user)
+    db.commit()
+    return {"deleted": True, "user_id": user_id}

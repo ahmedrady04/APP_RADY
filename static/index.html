@@ -151,7 +151,7 @@ input[type=file]{display:none}
 .play-pause{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--cyan));border:none;cursor:pointer;color:#fff;font-size:.95rem;display:grid;place-items:center;flex-shrink:0;transition:all .18s}
 .play-pause:hover{transform:scale(1.08)}
 .progress-wrap{flex:1;position:relative;height:6px;background:var(--brd);border-radius:3px;cursor:pointer}
-.progress-fill{position:absolute;inset-y:0;left:0;right:auto;background:linear-gradient(90deg,var(--sky),var(--cyan));border-radius:3px;width:0%;pointer-events:none}
+.progress-fill{position:absolute;top:0;bottom:0;left:0;right:auto;background:linear-gradient(90deg,var(--sky),var(--cyan));border-radius:3px;width:0%;pointer-events:none}
 .progress-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--sky);border:2px solid var(--s1);box-shadow:0 0 6px var(--skyglow);left:0%;pointer-events:none}
 .time-txt{font-family:var(--mono);font-size:.7rem;color:var(--dim2);white-space:nowrap;flex-shrink:0}
 .speed-row{display:flex;align-items:center;gap:.7rem}
@@ -216,11 +216,12 @@ tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--s2)}
 tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
 .td-num{font-family:var(--mono);color:var(--dim2);font-size:.7rem;width:36px;text-align:center}
-.td-plate{font-family:var(--mono);font-size:.95rem;font-weight:700;color:var(--sky);white-space:nowrap}
+.td-plate{font-family:Arial, sans-serif;font-size:.95rem;font-weight:800;color:var(--sky);white-space:nowrap}
 .td-plate.matched{background:rgba(34,197,94,.18);color:var(--green);border-radius:5px;padding:2px 8px;border:1px solid rgba(34,197,94,.35)}
 .td-edit{outline:none;min-width:60px}
 .td-edit:focus{background:var(--skyg);border-radius:4px;padding:1px 4px}
-.td-gps{font-family:var(--mono);font-size:.69rem;color:var(--dim2);direction:ltr;text-align:left;white-space:nowrap}
+.td-gps{font-family:var(--mono);font-size:.69rem;color:var(--dim2);direction:ltr;text-align:left;white-space:nowrap;min-width:190px}
+.td-locdetails{min-width:320px}
 .del-row{background:transparent;border:none;cursor:pointer;color:var(--dim);font-size:.85rem;padding:.2rem .4rem;border-radius:4px;transition:color .15s}
 .del-row:hover{color:var(--red)}
 /* ── Status ── */
@@ -278,6 +279,17 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
 .fc-check-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--teal),#0d9488);border:none;border-radius:10px;color:#fff;font-family:var(--ar);font-size:1rem;font-weight:800;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.55rem;box-shadow:0 4px 18px rgba(20,184,166,.4);margin-bottom:1rem}
 .fc-check-btn:hover:not(:disabled){opacity:.9;transform:translateY(-2px)}
 .fc-check-btn:disabled{opacity:.28;cursor:not-allowed}
+.fc-plate-check{margin-top:.85rem;padding:.85rem;border:1px solid var(--brd);border-radius:10px;background:var(--s2)}
+.fc-plate-check-row{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:end}
+@media(max-width:520px){.fc-plate-check-row{grid-template-columns:1fr}}
+.fc-plate-check-input{border:1px solid var(--brd2);border-radius:8px;padding:.72rem .75rem;background:var(--s1);color:var(--txt);font-family:var(--mono);transition:border-color .2s,box-shadow .2s}
+.fc-plate-check-input.state-ok{border-color:rgba(34,197,94,.7);box-shadow:0 0 0 2px rgba(34,197,94,.15)}
+.fc-plate-check-input.state-bad{border-color:rgba(239,68,68,.7);box-shadow:0 0 0 2px rgba(239,68,68,.14)}
+.fc-plate-check-btn{padding:.72rem .9rem;border:0;border-radius:8px;cursor:pointer;color:#fff;font-family:var(--ar);font-weight:800;background:linear-gradient(135deg,var(--teal),#0d9488)}
+.fc-plate-check-state{margin-top:.55rem;font-size:.78rem;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--brd2);color:var(--dim2);background:var(--s1)}
+.fc-plate-check-state.ok{color:var(--green);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1)}
+.fc-plate-check-state.bad{color:var(--red);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.1)}
+.fc-plate-check-state.proc{color:var(--teal);border-color:rgba(20,184,166,.35);background:rgba(20,184,166,.1)}
 .maps-link{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.69rem;color:var(--teal);text-decoration:none;padding:.15rem .45rem;border-radius:5px;border:1px solid rgba(20,184,166,.3);transition:all .18s}
 .maps-link:hover{background:rgba(20,184,166,.12);border-color:var(--teal)}
 .check-actions{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:1rem 0}
@@ -637,7 +649,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
   </div>
   <div class="tbl-outer">
     <table>
-      <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>الموقع</th><th>ملاحظات</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th></th></tr></thead>
+      <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th><th></th></tr></thead>
       <tbody id="excelBody"></tbody>
     </table>
   </div>
@@ -690,6 +702,21 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
   </div>
   <div class="status" id="fcRefStatus" style="margin-top:.6rem;margin-bottom:0">
     <div class="spin" id="fcRefSpin" style="display:none"></div><span id="fcRefStatusTxt"></span>
+  </div>
+  <div class="fc-plate-check">
+    <label class="lbl">تشيك لوحة سيارة واحدة</label>
+    <div class="fc-plate-check-row">
+      <input
+        type="text"
+        id="fcPlateLookupInput"
+        class="fc-plate-check-input"
+        placeholder="اكتب رقم اللوحة هنا"
+        oninput="fcResetPlateLookupUI()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();fcCheckSinglePlate();}"
+      />
+      <button type="button" id="fcPlateLookupBtn" class="fc-plate-check-btn" onclick="fcCheckSinglePlate()">فحص</button>
+    </div>
+    <div id="fcPlateLookupState" class="fc-plate-check-state">اكتب لوحة واضغط فحص</div>
   </div>
   <!-- Import existing Excel — available before recording -->
   <div style="margin-top:.85rem;padding-top:.85rem;border-top:1px solid var(--brd)">
@@ -788,7 +815,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     </div>
     <div class="tbl-outer">
       <table>
-        <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>GPS</th></tr></thead>
+        <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th></tr></thead>
         <tbody id="fcExtractedBody"></tbody>
       </table>
     </div>
@@ -806,7 +833,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     </div>
     <div class="tbl-outer" style="margin-bottom:1rem">
       <table>
-        <thead><tr><th>#</th><th>رقم اللوحة &#x2705;</th><th>الخريطة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>GPS</th></tr></thead>
+        <thead><tr><th>#</th><th>رقم اللوحة &#x2705;</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th></tr></thead>
         <tbody id="fcMatchedBody"></tbody>
       </table>
     </div>
@@ -998,10 +1025,21 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     </div>
     <input type="file" id="gmXlsxIn" accept=".xlsx" onchange="onGmapsFileChange(this.files[0])"/>
     <div style="margin-top:.75rem">
-      <label class="lbl">العمود الذي سيظهر على الدبابيس</label>
-      <select id="gmLabelCol" class="teal-focus" style="width:100%;min-height:44px" onchange="onGmapsLabelColChange()">
-        <option value="">— اختر العمود —</option>
+      <label class="lbl">مصدر الدبابيس (عمود الإحداثيات)</label>
+      <select id="gmGpsCol" class="teal-focus" style="width:100%;min-height:44px">
+        <option value="GPS">GPS</option>
+        <option value="موقع الشارع">موقع الشارع</option>
       </select>
+    </div>
+    <div style="margin-top:.75rem">
+      <label class="lbl">الأعمدة التي ستظهر فوق الدبوس (اختيار متعدد)</label>
+      <details id="gmLabelColsDrop" style="background:var(--s2);border:1px solid var(--brd2);border-radius:7px;padding:.55rem .75rem">
+        <summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--dim2)">اختر الأعمدة…</summary>
+        <div id="gmLabelColsList" style="margin-top:.55rem;display:grid;grid-template-columns:1fr 1fr;gap:.35rem .8rem"></div>
+      </details>
+      <div style="font-size:.68rem;color:var(--dim2);margin-top:.45rem;font-family:var(--mono)">
+        لن يتم تكرار نفس الدبوس مرتين حتى لو تكرر نفس GPS / موقع الشارع داخل الملف.
+      </div>
     </div>
     <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.85rem">
       <button class="tb-btn primary" onclick="loadGpsPointsToMap()" id="gmLoadBtn">&#x1F4CD; عرض النقاط على الخريطة</button>
@@ -1067,6 +1105,8 @@ let fcAllRows=[];  // cumulative across all recordings
 let gmapsFile=null,gmMap=null,gmMarkers=[],gmMapsApiPromise=null;
 let gmUserMarker=null,gmUserWatchId=null;
 let gmFollowZoom=17;
+let gmFollowEnabled=false;
+let gmHasUserZoomed=false;
 let gmHeadersLoaded=false;
 const audioEls={live:null,up:null,fc:null};
 // ── Init ──────────────────────────────────────────────
@@ -1308,7 +1348,8 @@ function removeGmapsFile(){
   document.getElementById('gmFileName').textContent='';
   document.getElementById('gmXlsxIn').value='';
   document.getElementById('gmRemoveBtn').classList.remove('show');
-  document.getElementById('gmLabelCol').innerHTML='<option value="">— اختر العمود —</option>';
+  const list=document.getElementById('gmLabelColsList');
+  if(list) list.innerHTML='';
   document.getElementById('gmStats').textContent='0 نقاط';
   clearGmMarkers();
   showGmStatus('','');
@@ -1321,22 +1362,54 @@ async function loadGmapsHeaders(){
     const res=await fetch('/api/parse-gps-excel',{method:'POST',body:fd});
     const data=await res.json();
     if(!res.ok)throw new Error(data.detail||'تعذر قراءة الأعمدة');
-    const sel=document.getElementById('gmLabelCol');
-    sel.innerHTML='<option value="">— اختر العمود —</option>';
-    (data.headers||[]).forEach(h=>{
-      const opt=document.createElement('option');
-      opt.value=h;
-      opt.textContent=h;
-      sel.appendChild(opt);
-    });
+    const headers=(data.headers||[]).filter(Boolean);
+    // Enable/disable GPS source options depending on file headers.
+    const gpsSel=document.getElementById('gmGpsCol');
+    if(gpsSel){
+      const hasGps=headers.includes('GPS');
+      const hasStreet=headers.includes('موقع الشارع');
+      [...gpsSel.options].forEach(o=>{
+        if(o.value==='GPS') o.disabled=!hasGps;
+        if(o.value==='موقع الشارع') o.disabled=!hasStreet;
+      });
+      if(gpsSel.value==='GPS' && !hasGps && hasStreet) gpsSel.value='موقع الشارع';
+      if(gpsSel.value==='موقع الشارع' && !hasStreet && hasGps) gpsSel.value='GPS';
+    }
+
+    const list=document.getElementById('gmLabelColsList');
+    if(list){
+      list.innerHTML='';
+      headers.forEach(h=>{
+        const id='gmLbl_'+btoa(unescape(encodeURIComponent(h))).replace(/=+$/,'');
+        const wrap=document.createElement('label');
+        wrap.style.display='flex';
+        wrap.style.alignItems='center';
+        wrap.style.gap='.45rem';
+        wrap.style.fontFamily='var(--mono)';
+        wrap.style.fontSize='.75rem';
+        wrap.style.color='var(--dim2)';
+        const cb=document.createElement('input');
+        cb.type='checkbox';
+        cb.value=h;
+        cb.id=id;
+        cb.onchange=()=>{ /* just persist in local state */ };
+        const sp=document.createElement('span');
+        sp.textContent=h;
+        wrap.appendChild(cb);
+        wrap.appendChild(sp);
+        list.appendChild(wrap);
+      });
+    }
     gmHeadersLoaded=true;
   }catch(e){
     showGmStatus('err','خطأ في قراءة الأعمدة: '+e.message);
   }
 }
-function onGmapsLabelColChange(){
-  const v=document.getElementById('gmLabelCol').value;
-  if(v) showGmStatus('ok','العمود المحدد: '+v);
+function getSelectedGmLabelCols(){
+  const list=document.getElementById('gmLabelColsList');
+  if(!list) return [];
+  const cbs=[...list.querySelectorAll('input[type=checkbox]')];
+  return cbs.filter(x=>x.checked).map(x=>x.value);
 }
 function getGoogleMapsKey(){
   return localStorage.getItem('sGoogleMapsKey') || '';
@@ -1379,6 +1452,9 @@ function ensureMapInstance(center){
       mapTypeControl:true,
       streetViewControl:false
     });
+    // Don't lock zoom: once the user zooms/drags, keep it flexible.
+    gmMap.addListener('zoom_changed',()=>{ gmHasUserZoomed=true; });
+    gmMap.addListener('dragstart',()=>{ gmHasUserZoomed=true; });
   }else if(center){
     gmMap.setCenter(center);
   }
@@ -1402,14 +1478,17 @@ async function loadGpsPointsToMap(){
   if(!gmapsFile){showGmStatus('err','يرجى رفع ملف .xlsx أولاً');return;}
   if(!gmHeadersLoaded) await loadGmapsHeaders();
   const btn=document.getElementById('gmLoadBtn');
-  const selectedCol=document.getElementById('gmLabelCol').value.trim();
+  const gpsColEl=document.getElementById('gmGpsCol');
+  const gpsCol=(gpsColEl?gpsColEl.value:'GPS').trim() || 'GPS';
+  const selectedCols=getSelectedGmLabelCols();
   btn.disabled=true;
   showGmStatus('proc','جاري قراءة الملف وتحميل الخريطة …',true);
   try{
     await ensureGoogleMapsApi();
     const fd=new FormData();
     fd.append('file',gmapsFile);
-    if(selectedCol) fd.append('label_col',selectedCol);
+    fd.append('gps_col',gpsCol);
+    if(selectedCols.length) fd.append('label_cols_json',JSON.stringify(selectedCols));
     const res=await fetch('/api/parse-gps-excel',{method:'POST',body:fd});
     const data=await res.json();
     if(!res.ok)throw new Error(data.detail||'تعذر قراءة الملف');
@@ -1419,26 +1498,50 @@ async function loadGpsPointsToMap(){
       showGmStatus('warn','لا توجد إحداثيات GPS صالحة في الملف');
       return;
     }
-    const center={lat:data.points[0].lat,lng:data.points[0].lng};
-    const map=ensureMapInstance(center);
+    const map=ensureMapInstance();
     clearGmMarkers();
     const infoWin=new google.maps.InfoWindow();
-    data.points.forEach((p,idx)=>{
+    const seen=new Set();
+    let dupSkipped=0;
+    const uniq=[];
+    data.points.forEach(p=>{
+      const key=(+p.lat).toFixed(6)+','+(+p.lng).toFixed(6);
+      if(seen.has(key)){dupSkipped++;return;}
+      seen.add(key);
+      uniq.push(p);
+    });
+
+    const bounds=new google.maps.LatLngBounds();
+    uniq.forEach((p,idx)=>{
       const marker=new google.maps.Marker({
         position:{lat:p.lat,lng:p.lng},
         map:map,
         title:'#'+(idx+1)+' '+p.lat+','+p.lng
       });
-      if(selectedCol && p.label){
+      bounds.extend({lat:p.lat,lng:p.lng});
+      if(selectedCols.length){
         marker.addListener('click',()=>{
-          infoWin.setContent('<div style="font-family:Arial;font-size:13px;line-height:1.5"><strong>'+escHtml(selectedCol)+':</strong> '+escHtml(p.label)+'</div>');
+          const fields=p.fields||{};
+          const rows=selectedCols.map(c=>{
+            return '<div><strong>'+escHtml(c)+':</strong> '+escHtml(fields[c]||'')+'</div>';
+          }).join('');
+          infoWin.setContent('<div style="font-family:Arial;font-size:13px;line-height:1.6">'+rows+'</div>');
           infoWin.open({anchor:marker,map:map});
         });
       }
       gmMarkers.push(marker);
     });
-    document.getElementById('gmStats').textContent=data.total+' نقاط';
-    showGmStatus('ok','تم عرض '+data.total+' نقطة'+(selectedCol?(' وربطها بعمود '+selectedCol):'')+(data.skipped?(' (تخطي '+data.skipped+')'):''));
+    // Move map to points (fit bounds).
+    if(uniq.length===1){
+      map.setCenter({lat:uniq[0].lat,lng:uniq[0].lng});
+      if(!gmHasUserZoomed) map.setZoom(15);
+    }else{
+      map.fitBounds(bounds, 60);
+    }
+    document.getElementById('gmStats').textContent=uniq.length+' نقاط';
+    const colsMsg=selectedCols.length?(' — الأعمدة: '+selectedCols.join('، ')):'';
+    const dupMsg=dupSkipped?(' (تم تجاهل مكررات: '+dupSkipped+')'):'';
+    showGmStatus('ok','تم عرض '+uniq.length+' نقطة من عمود '+gpsCol+colsMsg+dupMsg);
   }catch(e){
     showGmStatus('err','خطأ: '+e.message);
   }finally{
@@ -1479,14 +1582,13 @@ function startGmapsUserLocationTracking(){
           },
           zIndex:9999
         });
-        gmMap.panTo(myPos);
-        gmMap.setZoom(gmFollowZoom);
       }else{
         gmUserMarker.setPosition(myPos);
       }
-      // Real-time follow: keep map centered on device location.
-      gmMap.panTo(myPos);
-      if((gmMap.getZoom()||0)<gmFollowZoom) gmMap.setZoom(gmFollowZoom);
+      // Follow only when user pressed "موقعي الآن" (keep zoom flexible).
+      if(gmFollowEnabled){
+        gmMap.panTo(myPos);
+      }
     },
     err=>{
       showGmStatus('warn','تعذر تحديث موقعك: '+err.message);
@@ -1508,13 +1610,14 @@ async function goToMyLocation(){
   try{
     await ensureGoogleMapsApi();
     if(!gmMap) ensureMapInstance();
+    gmFollowEnabled=true;
 
     // Prefer the latest live-tracked marker position.
     if(gmUserMarker){
       const p=gmUserMarker.getPosition();
       if(p){
         gmMap.panTo(p);
-        gmMap.setZoom(17);
+        if(!gmHasUserZoomed) gmMap.setZoom(17);
         showGmStatus('ok','تم الانتقال إلى موقعك الحالي');
         return;
       }
@@ -1557,7 +1660,7 @@ async function goToMyLocation(){
       gmUserMarker.setPosition(myPos);
     }
     gmMap.panTo(myPos);
-    gmMap.setZoom(17);
+    if(!gmHasUserZoomed) gmMap.setZoom(17);
     showGmStatus('ok','تم الانتقال إلى موقعك الحالي');
   }catch(e){
     showGmStatus('err','تعذر تحديد موقعك: '+e.message);
@@ -1961,9 +2064,19 @@ function saveTable(){try{localStorage.setItem('plateTable_v5',JSON.stringify(tab
 function loadTable(){try{const s=localStorage.getItem('plateTable_v5');if(s)tableRows=JSON.parse(s);}catch(e){tableRows=[];}}
 function renderTable(){
   const body=document.getElementById('excelBody');body.innerHTML='';
+  const streetLoc = midGpsValue(tableRows);
   tableRows.forEach((row,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML='<td class="td-num">'+(i+1)+'</td><td class="td-plate td-edit" contenteditable="true" onblur="editCell('+i+',\'full_plate\',this.textContent)">'+esc(row.full_plate||row.plate||'')+'</td><td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'vehicle_type\',this.textContent)">'+esc(row.vehicle_type||'')+'</td><td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'street_name\',this.textContent)">'+esc(row.street_name||'')+'</td><td class="td-gps">'+esc(row.gps||'—')+'</td><td class="td-edit" style="font-size:.78rem;color:var(--dim2)" contenteditable="true" onblur="editCell('+i+',\'location_details\',this.textContent)">'+esc(row.location_details||'')+'</td><td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'recorder_name\',this.textContent)">'+esc(row.recorder_name||'')+'</td><td class="td-edit" style="font-family:var(--mono);font-size:.78rem" contenteditable="true" onblur="editCell('+i+',\'recording_date\',this.textContent)">'+esc(row.recording_date||'')+'</td><td><button class="del-row" onclick="deleteRow('+i+')">✕</button></td>';
+    tr.innerHTML='<td class="td-num">'+(i+1)+'</td>'
+      +'<td class="td-plate td-edit" contenteditable="true" onblur="editCell('+i+',\'full_plate\',this.textContent)">'+esc(row.full_plate||row.plate||'')+'</td>'
+      +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'vehicle_type\',this.textContent)">'+esc(row.vehicle_type||'')+'</td>'
+      +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'street_name\',this.textContent)">'+esc(row.street_name||'')+'</td>'
+      +'<td class="td-edit td-locdetails" style="font-size:.78rem;color:var(--dim2)" contenteditable="true" onblur="editCell('+i+',\'location_details\',this.textContent)">'+esc(row.location_details||'')+'</td>'
+      +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'recorder_name\',this.textContent)">'+esc(row.recorder_name||'')+'</td>'
+      +'<td class="td-edit" style="font-family:var(--mono);font-size:.78rem" contenteditable="true" onblur="editCell('+i+',\'recording_date\',this.textContent)">'+esc(row.recording_date||'')+'</td>'
+      +'<td class="td-gps">'+esc(row.gps||'—')+'</td>'
+      +'<td class="td-gps">'+esc(streetLoc||'—')+'</td>'
+      +'<td><button class="del-row" onclick="deleteRow('+i+')">✕</button></td>';
     body.appendChild(tr);
   });
   document.getElementById('rowCount').textContent=tableRows.length+' صف';
@@ -1972,6 +2085,13 @@ function editCell(idx,key,val){if(tableRows[idx])tableRows[idx][key]=val.trim();
 function deleteRow(idx){tableRows.splice(idx,1);saveTable();renderTable();}
 function addEmptyRow(){tableRows.push({full_plate:'',vehicle_type:'ملاكى',street_name:'',gps:'',location_details:'',recorder_name:'',recording_date:''});saveTable();renderTable();}
 function clearTable(){if(!tableRows.length)return;if(confirm('هل تريد مسح كل الصفوف؟')){tableRows=[];saveTable();renderTable();}}
+
+function midGpsValue(rows){
+  if(!rows||!rows.length) return '';
+  const midIdx=Math.floor((rows.length-1)/2);
+  const v = rows[midIdx] && rows[midIdx].gps!=null ? String(rows[midIdx].gps) : '';
+  return v.trim();
+}
 async function exportExcel(){
   if(!tableRows.length){showStatus('err','الجدول فارغ');return;}
   const sheetName=document.getElementById('sheetName').value.trim()||'بيانات المركبات';
@@ -2407,6 +2527,7 @@ function fcHandleDropRef(e){
 async function fcOnRefFile(f){
   if(!f)return;
   fcRefFile=f;fcRefPlates=[];
+  fcSetPlateLookupState('','اكتب لوحة واضغط فحص');
   document.getElementById('fcRefFname').textContent='\u{1F4CE} '+f.name;
   document.getElementById('fcRemoveRefBtn').classList.add('show');
   document.getElementById('fcRefCol').innerHTML='<option value="">اختر عموداً…</option>';
@@ -2453,6 +2574,7 @@ async function fcOnRefFile(f){
 
 function fcRemoveRefFile(){
   fcRefFile=null;fcRefPlates=[];
+  fcSetPlateLookupState('','اكتب لوحة واضغط فحص');
   document.getElementById('fcRefFname').textContent='';
   document.getElementById('fcRemoveRefBtn').classList.remove('show');
   document.getElementById('fcRefIn').value='';
@@ -2469,6 +2591,66 @@ function fcShowRefStatus(t,txt,spin){
   bar.className='status '+(t==='proc'?'proc':t==='ok'?'ok':t==='warn'?'warn':'err');
   document.getElementById('fcRefSpin').style.display=spin?'block':'none';
   document.getElementById('fcRefStatusTxt').textContent=txt;
+}
+
+function fcSetPlateLookupState(state,msg){
+  const box=document.getElementById('fcPlateLookupState');
+  const input=document.getElementById('fcPlateLookupInput');
+  if(!box||!input)return;
+  box.className='fc-plate-check-state'+(state==='ok'?' ok':state==='bad'?' bad':state==='proc'?' proc':'');
+  input.classList.remove('state-ok','state-bad');
+  if(state==='ok')input.classList.add('state-ok');
+  if(state==='bad')input.classList.add('state-bad');
+  box.textContent=msg||'';
+}
+
+function fcResetPlateLookupUI(){
+  const input=document.getElementById('fcPlateLookupInput');
+  if(!input)return;
+  const val=input.value.trim();
+  if(!val){
+    fcSetPlateLookupState('', 'اكتب لوحة واضغط فحص');
+    return;
+  }
+  fcSetPlateLookupState('', 'جاهز للفحص');
+}
+
+async function fcCheckSinglePlate(){
+  const input=document.getElementById('fcPlateLookupInput');
+  const btn=document.getElementById('fcPlateLookupBtn');
+  if(!input||!btn)return;
+  const plate=input.value.trim();
+  if(!plate){
+    fcSetPlateLookupState('bad','أدخل رقم اللوحة أولاً');
+    return;
+  }
+  if(!fcRefFile){
+    fcSetPlateLookupState('bad','ارفع ملف المرجع أولاً');
+    return;
+  }
+  fcSetPlateLookupState('proc','جاري الفحص ...');
+  btn.disabled=true;
+  try{
+    const fd=new FormData();
+    fd.append('file',fcRefFile);
+    fd.append('plate',plate);
+    const col=document.getElementById('fcRefCol').value.trim();
+    if(col)fd.append('col',col);
+    const res=await fetch('/api/check-ref-plate',{method:'POST',body:fd});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok){
+      throw new Error(data.detail||res.statusText||'فشل فحص اللوحة');
+    }
+    if(data.exists){
+      fcSetPlateLookupState('ok','✅ اللوحة موجودة في الشيت');
+    }else{
+      fcSetPlateLookupState('bad','❌ اللوحة غير موجودة في الشيت');
+    }
+  }catch(e){
+    fcSetPlateLookupState('bad','خطأ: '+(e.message||'تعذّر الفحص'));
+  }finally{
+    btn.disabled=false;
+  }
 }
 
 // ── Field check — ready state ──────────────────────────
@@ -2591,6 +2773,7 @@ function fcResetRecUI(){
 
 function fcRenderExtracted(){
   const body=document.getElementById('fcExtractedBody');body.innerHTML='';
+  const streetLoc = midGpsValue(fcAllRows);
   fcAllRows.forEach((row,i)=>{
     const tr=document.createElement('tr');
     tr.innerHTML=
@@ -2598,8 +2781,11 @@ function fcRenderExtracted(){
       '<td class="td-plate">'+esc(row.full_plate||'')+'</td>'+
       '<td>'+esc(row.vehicle_type||'')+'</td>'+
       '<td>'+esc(row.street_name||'')+'</td>'+
-      '<td style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
-      '<td class="td-gps">'+esc(row.gps||'—')+'</td>';
+      '<td class="td-locdetails" style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
+      '<td>'+esc(row.recorder_name||'')+'</td>'+
+      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
+      '<td class="td-gps">'+esc(row.gps||'—')+'</td>'+
+      '<td class="td-gps">'+esc(streetLoc||'—')+'</td>';
     body.appendChild(tr);
   });
   const cnt=fcAllRows.length+' لوحة';
@@ -2609,28 +2795,20 @@ function fcRenderExtracted(){
 
 function fcRenderMatched(){
   const body=document.getElementById('fcMatchedBody');body.innerHTML='';
+  const streetLoc = midGpsValue(fcMatchedRows);
   fcMatchedRows.forEach((row,i)=>{
-    const gps=String(row.gps||'').trim();
-    let mapsCell='—';
-    if(gps&&gps.includes(',')){
-      try{
-        const parts=gps.split(',');
-        const lat=parseFloat(parts[0].trim()),lng=parseFloat(parts[1].trim());
-        if(!isNaN(lat)&&!isNaN(lng)){
-          const url='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng;
-          mapsCell='<a class="maps-link" href="'+url+'" target="_blank" rel="noopener">📍 خريطة</a>';
-        }
-      }catch(e2){}
-    }
     const tr=document.createElement('tr');
+    const gps=String(row.gps||'').trim();
     tr.innerHTML=
       '<td class="td-num">'+(i+1)+'</td>'+
       '<td><span class="td-plate matched">'+esc(row.full_plate||'')+'</span></td>'+
-      '<td>'+mapsCell+'</td>'+
       '<td>'+esc(row.vehicle_type||'')+'</td>'+
       '<td>'+esc(row.street_name||'')+'</td>'+
-      '<td style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
-      '<td class="td-gps">'+esc(gps||'—')+'</td>';
+      '<td class="td-locdetails" style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
+      '<td>'+esc(row.recorder_name||'')+'</td>'+
+      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
+      '<td class="td-gps">'+esc(gps||'—')+'</td>'+
+      '<td class="td-gps">'+esc(streetLoc||'—')+'</td>';
     body.appendChild(tr);
   });
 }
@@ -2979,6 +3157,7 @@ function applyAdminNavVisibility(){
       const r=await fetch('/admin/users');
       const j=await r.json().catch(()=>[]);
       if(!r.ok) throw new Error(j.detail||'فشل تحميل المستخدمين');
+      window._adminUsersCache = j || [];
       body.innerHTML='';
       (j||[]).forEach(u=>{
         const tr=document.createElement('tr');
@@ -2986,7 +3165,8 @@ function applyAdminNavVisibility(){
         const un=typeof esc==='function'?esc(u.username):String(u.username);
         tr.innerHTML='<td>'+u.id+'</td><td>'+un+'</td><td>'+(u.is_admin?'yes':'no')+'</td><td>'+(u.is_active===false?'لا':'نعم')+'</td><td style="font-size:.7rem;max-width:140px;overflow:hidden;text-overflow:ellipsis">'+dev+'</td><td style="white-space:nowrap">'+
           '<button type="button" class="tb-btn outline" style="padding:.25rem .45rem;font-size:.68rem;margin-left:4px" onclick="adminSetActive('+u.id+','+(u.is_active===false?'true':'false')+')">'+(u.is_active===false?'تفعيل':'تعطيل')+'</button>'+
-          '<button type="button" class="tb-btn outline" style="padding:.25rem .45rem;font-size:.68rem" onclick="adminResetDevice('+u.id+')">مسح الجهاز</button></td>';
+          '<button type="button" class="tb-btn outline" style="padding:.25rem .45rem;font-size:.68rem;margin-left:4px" onclick="adminResetDevice('+u.id+')">مسح الجهاز</button>'+
+          '<button type="button" class="tb-btn danger" style="padding:.25rem .45rem;font-size:.68rem" onclick="adminDeleteUser('+u.id+')">حذف</button></td>';
         body.appendChild(tr);
       });
       m.style.color='var(--green)'; m.textContent='تم تحميل المستخدمين';
@@ -3012,6 +3192,20 @@ function applyAdminNavVisibility(){
       const j=await r.json().catch(()=>({}));
       if(!r.ok) throw new Error(j.detail||'فشل مسح الجهاز');
       m.style.color='var(--green)'; m.textContent='تم مسح ربط الجهاز';
+      await window.adminLoadUsers();
+    }catch(e){ m.style.color='var(--red)'; m.textContent=e.message||'فشل'; }
+  };
+
+  window.adminDeleteUser=async function(id){
+    const u=(window._adminUsersCache||[]).find(x=>x&&x.id===id);
+    const name = (u&&u.username) ? u.username : ('ID '+id);
+    if(!confirm('هل تريد حذف الحساب نهائياً من قاعدة البيانات؟\\n\\n'+name)) return;
+    const m=document.getElementById('adminMsg');
+    try{
+      const r=await fetch('/admin/users/'+id,{method:'DELETE'});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(j.detail||'فشل حذف المستخدم');
+      m.style.color='var(--green)'; m.textContent='تم حذف المستخدم';
       await window.adminLoadUsers();
     }catch(e){ m.style.color='var(--red)'; m.textContent=e.message||'فشل'; }
   };

@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from dependencies.auth import get_current_user
 from services.plate_utils import normalize_plate_value
 from services.excel_utils import apply_excel_style, workbook_to_bytes
+from urllib.parse import quote
 
 router = APIRouter(
     prefix="/api",
@@ -19,16 +20,34 @@ router = APIRouter(
 
 _EXPORT_HEADERS = [
     "#", "رقم اللوحة", "نوع المركبة", "الشارع",
-    "تفاصيل الموقع", "ملاحظات", "اسم المسجّل",
-    "تاريخ التسجيل", "GPS",
+    "تفاصيل الموقع", "اسم المسجّل", "تاريخ التسجيل",
+    "GPS", "موقع الشارع",
 ]
-_COL_WIDTHS = [5, 20, 14, 22, 25, 20, 16, 18, 22]
+_COL_WIDTHS = [5, 22, 14, 22, 40, 20, 18, 26, 26]
 
 
 def _clean_sheet_name(name: str) -> str:
     for ch in r'/\?*[]':
         name = name.replace(ch, "")
     return (name or "بيانات المركبات")[:31]
+
+def _content_disposition(filename_utf8: str, fallback_ascii: str = "export.xlsx") -> str:
+    """
+    Starlette encodes header values as latin-1; non-ASCII must be percent-encoded.
+    Provide an ASCII fallback filename for older clients.
+    """
+    encoded = quote(filename_utf8, safe="")
+    return f'attachment; filename="{fallback_ascii}"; filename*=UTF-8\'\'{encoded}'
+
+def _mid_gps_value(valid_rows: list[dict]) -> str:
+    """
+    Pick a representative GPS value from the middle of the recording.
+    Example: if there are 100 cars, pick item #50 (1-based) -> index 49.
+    """
+    if not valid_rows:
+        return ""
+    mid_idx = (len(valid_rows) - 1) // 2
+    return str(valid_rows[mid_idx].get("gps", "") or "").strip()
 
 
 @router.post("/export-excel")
@@ -53,6 +72,7 @@ async def export_excel(
     ha    = Alignment(horizontal="center", vertical="center")
     ca    = Alignment(horizontal="center", vertical="center", wrap_text=True)
     df    = Font(name="Arial", size=11)
+    pf    = Font(name="Arial", size=11, bold=True)  # plate font
     thin  = Side(style="thin", color="BFBFBF")
     brd   = Border(left=thin, right=thin, top=thin, bottom=thin)
     fe    = PatternFill("solid", start_color="D6E4F0")
@@ -74,6 +94,8 @@ async def export_excel(
         rr["full_plate"] = normalized
         valid_rows.append(rr)
 
+    street_location = _mid_gps_value(valid_rows)
+
     for i, r in enumerate(valid_rows, 1):
         fill = fe if i % 2 == 0 else fo
         vals = [
@@ -82,14 +104,15 @@ async def export_excel(
             r.get("vehicle_type", "ملاكى"),
             r.get("street_name", "غير محدد"),
             r.get("location_details", ""),
-            r.get("notes", ""),
             r.get("recorder_name", ""),
             r.get("recording_date", ""),
             r.get("gps", ""),
+            street_location,
         ]
         for col, v in enumerate(vals, 1):
             cell = ws.cell(row=i + 1, column=col, value=v)
-            cell.font = df; cell.alignment = ca
+            cell.font = pf if col == 2 else df
+            cell.alignment = ca
             cell.border = brd; cell.fill = fill
 
     for col, w in zip("ABCDEFGHI", _COL_WIDTHS):
@@ -103,7 +126,7 @@ async def export_excel(
         media_type=(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ),
-        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"},
+        headers={"Content-Disposition": _content_disposition(filename, "tafreegh.xlsx")},
     )
 
 
@@ -130,15 +153,18 @@ async def export_field_check(
     ha    = Alignment(horizontal="center", vertical="center")
     ca    = Alignment(horizontal="center", vertical="center", wrap_text=True)
     df    = Font(name="Arial", size=11)
+    pf    = Font(name="Arial", size=11, bold=True)  # plate font
     thin  = Side(style="thin", color="BFBFBF")
     brd   = Border(left=thin, right=thin, top=thin, bottom=thin)
     fe    = PatternFill("solid", start_color="E0F2F1")
     fo    = PatternFill("solid", start_color="FFFFFF")
 
-    headers = ["#", "رقم اللوحة", "نوع المركبة", "الشارع",
-               "تفاصيل الموقع", "ملاحظات", "اسم المسجّل",
-               "تاريخ التسجيل", "GPS"]
-    col_widths = [5, 20, 14, 22, 25, 20, 16, 18, 22]
+    headers = [
+        "#", "رقم اللوحة", "نوع المركبة", "الشارع",
+        "تفاصيل الموقع", "اسم المسجّل", "تاريخ التسجيل",
+        "GPS", "موقع الشارع",
+    ]
+    col_widths = [5, 22, 14, 22, 40, 20, 18, 26, 26]
 
     for col, h in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=h)
@@ -155,6 +181,8 @@ async def export_field_check(
         rr["full_plate"] = normalized
         valid_rows.append(rr)
 
+    street_location = _mid_gps_value(valid_rows)
+
     for i, r in enumerate(valid_rows, 1):
         fill = fe if i % 2 == 0 else fo
         vals = [
@@ -163,14 +191,15 @@ async def export_field_check(
             r.get("vehicle_type", "ملاكى"),
             r.get("street_name", "غير محدد"),
             r.get("location_details", ""),
-            r.get("notes", ""),
             r.get("recorder_name", ""),
             r.get("recording_date", ""),
             r.get("gps", ""),
+            street_location,
         ]
         for col, v in enumerate(vals, 1):
             cell = ws.cell(row=i + 1, column=col, value=v)
-            cell.font = df; cell.alignment = ca
+            cell.font = pf if col == 2 else df
+            cell.alignment = ca
             cell.border = brd; cell.fill = fill
 
     for col, w in zip("ABCDEFGHI", col_widths):
@@ -184,7 +213,7 @@ async def export_field_check(
         media_type=(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ),
-        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"},
+        headers={"Content-Disposition": _content_disposition(filename, "matched_plates.xlsx")},
     )
 
 
