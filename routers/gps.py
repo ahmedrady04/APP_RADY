@@ -1,0 +1,415 @@
+import io
+import json
+from datetime import datetime
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse, JSONResponse
+
+from dependencies.auth import get_current_user
+from services.plate_utils import normalize_plate, auto_detect_plate_col
+from services.excel_utils import (
+    load_workbook_maybe_encrypted,
+    find_best_sheet,
+    apply_excel_style,
+    workbook_to_bytes,
+)
+
+router = APIRouter(
+    prefix="/api",
+    tags=["gps"],
+    dependencies=[Depends(get_current_user)],
+)
+
+
+def _cell_val(row, ci):
+    if ci is None or ci >= len(row):
+        return ""
+    v = row[ci]
+    return str(v).strip() if v is not None else ""
+
+
+@router.post("/parse-gps-excel")
+async def parse_gps_excel(
+    file:      UploadFile = File(...),
+    label_col: str        = Form(""),
+):
+    content = await file.read()
+    try:
+        wb   = openpyxl.load_workbook(
+            io.BytesIO(content), read_only=True, data_only=True
+        )
+        ws   = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+
+        if not rows:
+            return JSONResponse(
+                {"points": [], "total": 0, "skipped": 0, "headers": [], "label_col_used": ""}
+            )
+
+        headers = [str(c).strip() if c is not None else "" for c in rows[0]]
+
+        gps_idx = next(
+            (i for i, h in enumerate(headers) if h.strip() == "GPS"), None
+        )
+        if gps_idx is None:
+            raise HTTPException(status_code=400, detail="لا يوجد عمود GPS في الملف")
+
+        label_col  = label_col.strip()
+        label_idx  = (
+            headers.index(label_col)
+            if label_col and label_col in headers
+            else None
+        )
+
+        points  = []
+        skipped = 0
+
+        for row in rows[1:]:
+            if all(c is None for c in row):
+                continue
+            raw = row[gps_idx] if gps_idx < len(row) else None
+            s   = str(raw).strip() if raw is not None else ""
+            if not s or "," not in s:
+                skipped += 1
+                continue
+            parts = s.split(",")
+            if len(parts) < 2:
+                skipped += 1
+                continue
+            try:
+                lat = float(parts[0].strip())
+                lng = float(parts[1].strip())
+                label_val = (
+                    str(row[label_idx]).strip()
+                    if label_idx is not None
+                    and label_idx < len(row)
+                    and row[label_idx] is not None
+                    else ""
+                )
+                points.append({"lat": lat, "lng": lng, "label": label_val})
+            except Exception:
+                skipped += 1
+
+        return JSONResponse({
+            "points":        points,
+            "total":         len(points),
+            "skipped":       skipped,
+            "headers":       [h for h in headers if h],
+            "label_col_used": headers[label_idx] if label_idx is not None else "",
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/check-gps-data")
+async def check_gps_data(
+    large_file:  UploadFile = File(...),
+    small_file:  UploadFile = File(...),
+    password:    str        = Form(""),
+    large_col:   str        = Form(""),
+    small_col:   str        = Form(""),
+    large_sheet: str        = Form(""),
+    small_sheet: str        = Form(""),
+):
+    lc_bytes = await large_file.read()
+    sc_bytes = await small_file.read()
+
+    try:
+        large_wb = load_workbook_maybe_encrypted(lc_bytes, password.strip())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    try:
+        small_wb = openpyxl.load_workbook(
+            io.BytesIO(sc_bytes), read_only=True, data_only=True
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"تعذّر فتح الملف الصغير: {e}")
+
+    large_ws = (
+        large_wb[large_sheet]
+        if large_sheet and large_sheet in large_wb.sheetnames
+        else find_best_sheet(large_wb)
+    )
+    small_ws = (
+        small_wb[small_sheet]
+        if small_sheet and small_sheet in small_wb.sheetnames
+        else find_best_sheet(small_wb)
+    )
+
+    ld = list(large_ws.iter_rows(values_only=True))
+    if not ld:
+        raise HTTPException(status_code=400, detail="الملف الكبير فارغ")
+
+    lh = [str(h).strip() if h is not None else "" for h in ld[0]]
+    lc = large_col.strip() or auto_detect_plate_col(lh)
+
+    if not lc or lc not in lh:
+        raise HTTPException(
+            status_code=422,
+            detail=f"لم يُعثر على عمود اللوحة في الملف الكبير. الأعمدة: {lh}",
+        )
+
+    gps_col = next((h for h in lh if h.strip() == "GPS"), None)
+    if not gps_col:
+        raise HTTPException(
+            status_code=400, detail="لا يوجد عمود GPS في الملف الكبير"
+        )
+
+    date_col  = next((h for h in lh if "تاريخ" in h), None)
+    type_col  = next((h for h in lh if "نوع" in h),   None)
+    notes_col = next((h for h in lh if "ملاحظات" in h), None)
+
+    lci      = lh.index(lc)
+    gps_ci   = lh.index(gps_col)
+    date_ci  = lh.index(date_col)  if date_col  else None
+    type_ci  = lh.index(type_col)  if type_col  else None
+    notes_ci = lh.index(notes_col) if notes_col else None
+
+    lookup = {}
+    for row in ld[1:]:
+        if all(v is None for v in row):
+            continue
+        rp   = row[lci] if lci < len(row) else None
+        norm = normalize_plate(rp)
+        if not norm:
+            continue
+        lookup.setdefault(norm, []).append({
+            "plate":        str(rp or "").strip(),
+            "gps":          _cell_val(row, gps_ci),
+            "date":         _cell_val(row, date_ci),
+            "vehicle_type": _cell_val(row, type_ci),
+            "notes":        _cell_val(row, notes_ci),
+        })
+
+    sd = list(small_ws.iter_rows(values_only=True))
+    if not sd:
+        raise HTTPException(status_code=400, detail="الملف الصغير فارغ")
+
+    sh = [str(h).strip() if h is not None else "" for h in sd[0]]
+    sc = small_col.strip() or auto_detect_plate_col(sh)
+
+    if not sc or sc not in sh:
+        raise HTTPException(
+            status_code=422,
+            detail=f"لم يُعثر على عمود اللوحة في الملف الصغير. الأعمدة: {sh}",
+        )
+
+    sci     = sh.index(sc)
+    matched = []
+    seen    = set()
+
+    for row in sd[1:]:
+        if all(v is None for v in row):
+            continue
+        rp   = row[sci] if sci < len(row) else None
+        norm = normalize_plate(rp)
+        if not norm:
+            continue
+        if norm in lookup:
+            for item in lookup[norm]:
+                key = (item["plate"], item["gps"])
+                if key not in seen:
+                    seen.add(key)
+                    matched.append(item)
+
+    if not matched:
+        return JSONResponse({"detail": "لا توجد تطابقات بين الملفين", "vehicles": []})
+
+    # Filter rows that have valid GPS coordinates
+    valid = []
+    for item in matched:
+        gps = item.get("gps", "")
+        if not gps or gps in ("None", "") or "," not in gps:
+            continue
+        parts = gps.split(",")
+        try:
+            float(parts[0].strip())
+            float(parts[1].strip())
+            valid.append(item)
+        except Exception:
+            continue
+
+    return JSONResponse({
+        "vehicles": valid,
+        "total":    len(valid),
+        "skipped":  len(matched) - len(valid),
+    })
+
+
+@router.post("/parse-ref-plates")
+async def parse_ref_plates(
+    file: UploadFile = File(...),
+    col:  str        = Form(""),
+):
+    content = await file.read()
+    try:
+        wb      = openpyxl.load_workbook(
+            io.BytesIO(content), read_only=True, data_only=True
+        )
+        ws      = find_best_sheet(wb)
+        rows    = list(ws.iter_rows(values_only=True))
+        if not rows:
+            return JSONResponse({"plates": [], "total": 0, "col_used": ""})
+
+        headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+        col     = col.strip()
+        col_idx = None
+
+        if col and col in headers:
+            col_idx = headers.index(col)
+        if col_idx is None:
+            detected = auto_detect_plate_col(headers)
+            if detected and detected in headers:
+                col_idx = headers.index(detected)
+        if col_idx is None:
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "detail":  f"لم يُعثر على عمود اللوحة. الأعمدة: {headers}",
+                    "headers": headers,
+                    "code":    "COL_NOT_FOUND",
+                },
+            )
+
+        plates = []
+        for row in rows[1:]:
+            if all(v is None for v in row):
+                continue
+            val = row[col_idx] if col_idx < len(row) else None
+            if val is not None and str(val).strip():
+                plates.append(str(val).strip())
+
+        return JSONResponse({
+            "plates":   plates,
+            "total":    len(plates),
+            "col_used": headers[col_idx],
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/export-gps-excel")
+async def export_gps_excel(
+    results_json: str = Form("[]"),
+    failed_json:  str = Form("[]"),
+    my_lat:       str = Form(""),
+    my_lon:       str = Form(""),
+):
+    try:
+        results = json.loads(results_json)
+        failed  = json.loads(failed_json)
+    except Exception:
+        raise HTTPException(status_code=400, detail="تنسيق JSON خاطئ")
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "أقرب المركبات"
+    ws.sheet_view.rightToLeft = True
+
+    hf     = Font(name="Arial", bold=True, color="FFFFFF", size=12)
+    hfill  = PatternFill("solid", start_color="0D6B5E")
+    ha     = Alignment(horizontal="center", vertical="center")
+    ca     = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    df     = Font(name="Arial", size=11)
+    lf_map = Font(name="Arial", size=11, color="0563C1", underline="single")
+    thin   = Side(style="thin", color="BFBFBF")
+    brd    = Border(left=thin, right=thin, top=thin, bottom=thin)
+    fe     = PatternFill("solid", start_color="E0F2F1")
+    fo     = PatternFill("solid", start_color="FFFFFF")
+    rank1f = PatternFill("solid", start_color="C8E6C9")
+
+    headers    = ["#", "رقم اللوحة", "الخريطة", "النوع", "ملاحظات",
+                  "المسافة (km)", "الوقت (دقيقة)", "تاريخ التسجيل"]
+    col_widths = [5, 22, 28, 14, 22, 14, 14, 20]
+
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.font = hf; cell.fill = hfill
+        cell.alignment = ha; cell.border = brd
+    ws.row_dimensions[1].height = 30
+
+    for i, r in enumerate(results, 1):
+        fill     = rank1f if r.get("rank") == 1 else (fe if i % 2 == 0 else fo)
+        gps      = r.get("gps", "")
+        maps_url = ""
+
+        if gps and "," in gps and my_lat and my_lon:
+            parts = gps.split(",")
+            try:
+                vlat     = float(parts[0].strip())
+                vlng     = float(parts[1].strip())
+                maps_url = (
+                    f"https://www.google.com/maps/dir/{my_lat},{my_lon}/{vlat},{vlng}"
+                )
+            except Exception:
+                pass
+
+        row_vals = [
+            r.get("rank", i),
+            r.get("plate", ""),
+            maps_url or "",
+            r.get("vehicle_type", ""),
+            r.get("notes", ""),
+            r.get("distance_km", ""),
+            r.get("duration_min", ""),
+            r.get("date", ""),
+        ]
+
+        for col, v in enumerate(row_vals, 1):
+            cell = ws.cell(row=i + 1, column=col, value=v)
+            cell.border = brd; cell.fill = fill
+            if col == 3 and maps_url:
+                cell.value     = "📍 فتح الخريطة"
+                cell.hyperlink = maps_url
+                cell.font      = lf_map
+                cell.alignment = ca
+            else:
+                cell.font      = df
+                cell.alignment = ca
+
+    for idx, w in enumerate(col_widths):
+        ws.column_dimensions[chr(65 + idx)].width = w
+
+    if failed:
+        ws_f = wb.create_sheet("فشلت")
+        apply_excel_style(
+            ws_f,
+            ["رقم اللوحة", "GPS", "السبب"],
+            [
+                {
+                    "رقم اللوحة": f.get("plate", ""),
+                    "GPS":         f.get("gps",   ""),
+                    "السبب":       f.get("reason", ""),
+                }
+                for f in failed
+            ],
+        )
+
+    ws_s = wb.create_sheet("ملخص")
+    apply_excel_style(ws_s, ["البند", "القيمة"], [
+        {"البند": "موقع المستخدم",          "القيمة": f"{my_lat}, {my_lon}"},
+        {"البند": "إجمالي مركبات مطابَقة",  "القيمة": len(results)},
+        {"البند": "مركبات فشلت",             "القيمة": len(failed)},
+        {"البند": "أقرب مركبة",              "القيمة": results[0]["plate"]        if results else "—"},
+        {"البند": "أقل مسافة (km)",          "القيمة": results[0]["distance_km"]  if results else "—"},
+        {"البند": "أقل وقت (دقيقة)",         "القيمة": results[0]["duration_min"] if results else "—"},
+    ])
+
+    content  = workbook_to_bytes(wb)
+    ts       = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"أقرب_المركبات_{ts}.xlsx"
+
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"},
+    )

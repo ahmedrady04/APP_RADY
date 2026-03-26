@@ -1,0 +1,53 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from db import get_db
+from dependencies.auth import get_current_user, require_device_header
+from models import User
+from schemas.auth import LoginRequest, MeOut, RefreshRequest, TokenResponse
+from services.auth_service import AuthServiceError, login as auth_login, refresh as auth_refresh
+
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@router.get("/me", response_model=MeOut)
+def me(current: User = Depends(get_current_user)):
+    return MeOut(username=current.username, is_admin=current.is_admin)
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(
+    payload: LoginRequest,
+    x_device_id: str = Depends(require_device_header),
+    db: Session = Depends(get_db),
+):
+    try:
+        access_token, refresh_token, is_admin = auth_login(
+            db=db,
+            username=payload.username,
+            password=payload.password,
+            device_id=x_device_id,
+        )
+    except AuthServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token, is_admin=is_admin)
+
+
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_token(
+    payload: RefreshRequest,
+    x_device_id: str = Depends(require_device_header),
+    db: Session = Depends(get_db),
+):
+    try:
+        access_token, refresh_token, is_admin = auth_refresh(
+            db=db,
+            refresh_token=payload.refresh_token,
+            device_id=x_device_id,
+        )
+    except AuthServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token, is_admin=is_admin)

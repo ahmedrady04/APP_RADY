@@ -1,0 +1,11 @@
+fastapi>=0.111.0
+uvicorn>=0.29.0
+SQLAlchemy>=2.0.0
+PyJWT>=2.8.0
+passlib>=1.7.4
+python-multipart>=0.0.9
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+google-genai>=0.8.0
+openpyxl>=3.1.2
+msoffcrypto-tool>=5.4.1
