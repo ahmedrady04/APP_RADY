@@ -256,6 +256,8 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
 .pw-row input{flex:1}
 .pw-toggle{width:36px;height:36px;border-radius:7px;background:var(--s2);border:1px solid var(--brd2);cursor:pointer;color:var(--dim2);display:grid;place-items:center;font-size:.95rem;transition:all .2s;flex-shrink:0}
 .pw-toggle:hover{border-color:var(--sky);color:var(--sky)}
+.pw-confirm{height:36px;border-radius:7px;background:var(--s2);border:1px solid var(--brd2);cursor:pointer;color:var(--text);padding:0 .8rem;font-family:var(--ar);font-weight:800;font-size:.86rem;transition:all .2s;flex-shrink:0;white-space:nowrap}
+.pw-confirm:hover{border-color:var(--sky);color:var(--sky)}
 .check-run-btn{width:100%;padding:.95rem;background:linear-gradient(135deg,var(--violet),#6d28d9,#5b21b6);border:none;border-radius:10px;color:#fff;font-family:var(--ar);font-size:1rem;font-weight:800;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.55rem;box-shadow:0 4px 20px rgba(139,92,246,.4);margin:1rem 0}
 .check-run-btn:hover:not(:disabled){opacity:.9;transform:translateY(-2px)}
 .check-run-btn:disabled{opacity:.28;cursor:not-allowed}
@@ -869,7 +871,8 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
           <label class="lbl">&#x1F512; كلمة المرور (إن وجدت)</label>
           <input type="password" id="largePw" placeholder="اتركه فارغاً إن لم يكن محمياً" oninput="resetCheckDetect()"/>
         </div>
-        <button class="pw-toggle" onclick="togglePw('largePw',this)" title="&#x625;&#x638;&#x647;&#x627;&#x631;/&#x625;&#x62E;&#x641;&#x627;&#x621;">&#x1F441;</button>
+        <button class="pw-toggle" onclick="togglePw('largePw',this)" title="&#x625;&#x638;&#x647;&#x627;&#x331;/&#x625;&#x62E;&#x641;&#x627;&#x621;">&#x1F441;</button>
+        <button class="pw-confirm" onclick="confirmLargePw()" title="تأكيد كلمة المرور واكتشاف العمود تلقائياً">تاكيد</button>
       </div>
       <div style="margin-top:.65rem"><label class="lbl">عمود اللوحة في الملف الكبير</label>
         <div class="col-detect-row">
@@ -2269,6 +2272,11 @@ async function runCheck(){
 }
 function downloadResult(){if(!checkResultBlob)return;const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');triggerDownload(checkResultBlob,'\u0627\u0644\u062A\u0637\u0627\u0628\u0642\u0627\u062A_'+ts+'.xlsx');}
 function togglePw(inputId,btn){const inp=document.getElementById(inputId);inp.type=inp.type==='password'?'text':'password';btn.textContent=inp.type==='password'?'\u{1F441}':'\u{1F648}';}
+function confirmLargePw(){
+  if(!checkLargeFile){showCheckStatus('err','يرجى رفع الملف الكبير أولاً');return;}
+  resetCheckDetect();
+  detectColForSide('large');
+}
 function toggleOrsPw(){const inp=document.getElementById('orsKey');inp.type=inp.type==='password'?'text':'password';}
 function refreshCheckLoc(){
   const btn=document.getElementById('checkLocBtn');btn.disabled=true;setCheckLocDot('','\u062C\u0627\u0631\u064A...');
