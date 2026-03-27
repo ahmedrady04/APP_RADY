@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from config import settings
@@ -71,11 +72,28 @@ def bootstrap_admin(db: Session) -> None:
         device_id=None,
     )
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Another Gunicorn worker inserted the bootstrap admin at the same time.
+        db.rollback()
+
+
+def _sqlite_table_exists_error(exc: OperationalError) -> bool:
+    msg = str(getattr(exc, "orig", None) or exc).lower()
+    return "already exists" in msg
 
 
 def _startup_db_sync() -> None:
-    Base.metadata.create_all(bind=engine, checkfirst=True)
+    # Gunicorn runs multiple workers; each calls lifespan. SQLite DDL is not safe to
+    # run concurrently — a second CREATE TABLE can raise "table ... already exists".
+    try:
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    except OperationalError as e:
+        if _sqlite_table_exists_error(e):
+            pass
+        else:
+            raise
     apply_sqlite_migrations()
     with Session(engine) as db:
         bootstrap_admin(db)

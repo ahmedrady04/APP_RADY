@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from config import settings
@@ -17,7 +18,14 @@ def apply_sqlite_migrations() -> None:
         rows = conn.execute(text("PRAGMA table_info(users)")).fetchall()
         col_names = {r[1] for r in rows}
         if "is_active" not in col_names:
-            conn.execute(text("ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"))
+            try:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1")
+                )
+            except OperationalError as e:
+                # Concurrent workers may both attempt ALTER; second sees column already added.
+                if "duplicate column" not in str(getattr(e, "orig", None) or e).lower():
+                    raise
 
 
 def get_db():
