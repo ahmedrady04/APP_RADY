@@ -18,6 +18,7 @@ You are an expert Arabic data clerk specializing in Saudi/Gulf license plates.
 Never translate letters to English; always use Arabic script.
 If the speaker mentions a vehicle type (Taxi, Dyna, Transport), include it.
 Carefully identify Street Names and specific Landmarks mentioned by the speaker.
+Do NOT remove duplicate license plates.
 """
 
 USER_PROMPT = """
@@ -194,20 +195,6 @@ def _enrich_plates(
     return plates
 
 
-def _deduplicate(plates: list[dict]) -> list[dict]:
-    seen, unique = set(), []
-    for p in plates:
-        key = (
-            p.get("full_plate", ""),
-            p.get("street_name", ""),
-            p.get("location_details", ""),
-        )
-        if key not in seen:
-            seen.add(key)
-            unique.append(p)
-    return unique
-
-
 async def process_audio(
     file_content: bytes,
     filename: str,
@@ -217,7 +204,7 @@ async def process_audio(
     sheet_name: str,
     gps_points: list[dict],
 ) -> list[dict]:
-    """Upload audio to Gemini, extract plates, enrich, deduplicate."""
+    """Upload audio to Gemini, extract plates, enrich (لوحات متكررة تُحفظ كما هي)."""
     suffix = Path(filename).suffix if filename else ".mp3"
     suffix = (suffix or ".mp3").encode("ascii", "ignore").decode("ascii") or ".mp3"
     gemini_mime = _detect_mime(filename)
@@ -241,7 +228,6 @@ async def process_audio(
 
         plates = _parse_gemini_response(raw_text)
         plates = _enrich_plates(plates, recorder_name, sheet_name, gps_points)
-        plates = _deduplicate(plates)
         return plates
 
     finally:

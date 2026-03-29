@@ -122,15 +122,18 @@ async def _check_job_task(
             small_export_cols,
         )
         if raw["kind"] == "xlsx":
+            data_out: dict = {
+                "kind": "xlsx",
+                "filename": raw["filename"],
+                "content_b64": base64.b64encode(raw["content"]).decode("ascii"),
+            }
+            if raw.get("preview"):
+                data_out["preview"] = raw["preview"]
             await job_save(
                 job_id,
                 {
                     "status": "done",
-                    "data": {
-                        "kind": "xlsx",
-                        "filename": raw["filename"],
-                        "content_b64": base64.b64encode(raw["content"]).decode("ascii"),
-                    },
+                    "data": data_out,
                 },
                 ttl_seconds=TTL_TERMINAL_SEC,
             )

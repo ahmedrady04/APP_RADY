@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from db import get_db
 from dependencies.auth import require_admin
-from models import User
+from models import RefreshToken, User
 from schemas.user import CreateUserRequest, UserActiveUpdate, UserOut
 from services.auth_service import (
     AuthServiceError,
@@ -84,6 +84,9 @@ async def delete_user(
         if admins_count <= 1:
             raise HTTPException(status_code=400, detail="لا يمكن حذف آخر Admin في النظام")
 
+    db.query(RefreshToken).filter(RefreshToken.user_id == user_id).delete(
+        synchronize_session=False
+    )
     db.delete(user)
     db.commit()
     return {"deleted": True, "user_id": user_id}

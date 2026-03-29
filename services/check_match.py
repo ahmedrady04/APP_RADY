@@ -12,12 +12,13 @@ from services.plate_utils import normalize_plate, auto_detect_plate_col
 from services.excel_utils import (
     load_workbook_maybe_encrypted,
     find_best_sheet,
-    apply_excel_style,
     apply_excel_style_matched_merge,
     workbook_to_bytes,
 )
 
 logger = logging.getLogger(__name__)
+
+PREVIEW_MAX_ROWS = 300
 
 
 def _norm_large_export_cols(requested: list[str], available: list[str]) -> list[str]:
@@ -188,31 +189,32 @@ def run_check_plates_sync(
     ws_m.title = "التطابقات"
     apply_excel_style_matched_merge(ws_m, display_headers, matched_rows, col_sources)
 
-    ws_s = wb_out.create_sheet("ملخص")
-    apply_excel_style(
-        ws_s,
-        ["البند", "القيمة"],
-        [
-            {"البند": "إجمالي صفوف مُطابَقة", "القيمة": len(matched_pairs)},
-            {"البند": "لوحات مطابَقة", "القيمة": len(mp)},
-            {"البند": "لوحات غير مطابَقة", "القيمة": len(up)},
-            {"البند": "عمود الملف الكبير", "القيمة": lc},
-            {"البند": "عمود الملف الصغير", "القيمة": sc},
-            {"البند": "أعمدة الملف الكبير في التصدير", "القيمة": ", ".join(le_cols)},
-            {"البند": "أعمدة الملف الصغير في التصدير", "القيمة": ", ".join(se_cols)},
-        ],
-    )
-
-    if up:
-        ws_u = wb_out.create_sheet("غير مطابَقة")
-        apply_excel_style(
-            ws_u,
-            ["رقم اللوحة (غير مطابق)"],
-            [{"رقم اللوحة (غير مطابق)": p} for p in up],
-        )
-
     content = workbook_to_bytes(wb_out)
     ts = datetime.now().strftime("%Y%m%d_%H%M")
     filename = f"التطابقات_{ts}.xlsx"
 
-    return {"kind": "xlsx", "content": content, "filename": filename}
+    preview_rows: list[list[str]] = []
+    for rd in matched_rows[:PREVIEW_MAX_ROWS]:
+        preview_rows.append(
+            [
+                "" if rd.get(h) is None else str(rd.get(h)).strip()
+                for h in display_headers
+            ]
+        )
+
+    return {
+        "kind": "xlsx",
+        "content": content,
+        "filename": filename,
+        "preview": {
+            "headers": display_headers,
+            "rows": preview_rows,
+            "total_rows": len(matched_rows),
+            "truncated": len(matched_rows) > PREVIEW_MAX_ROWS,
+            "stats": {
+                "matched_rows": len(matched_pairs),
+                "matched_plate_hits": len(mp),
+                "unmatched_plates": len(up),
+            },
+        },
+    }

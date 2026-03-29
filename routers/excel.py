@@ -25,11 +25,16 @@ router = APIRouter(
 )
 
 _EXPORT_HEADERS = [
-    "#", "رقم اللوحة", "نوع المركبة", "الشارع",
-    "تفاصيل الموقع", "اسم المسجّل", "تاريخ التسجيل",
-    "GPS", "موقع الشارع",
+    "رقم اللوحة",
+    "GPS",
+    "تاريخ التسجيل",
+    "الشارع",
+    "تفاصيل الموقع",
+    "نوع المركبة",
+    "اسم المسجّل",
+    "موقع الشارع",
 ]
-_COL_WIDTHS = [5, 22, 14, 22, 40, 20, 18, 26, 26]
+_COL_WIDTHS = [22, 26, 18, 22, 40, 14, 20, 26]
 
 
 def _clean_sheet_name(name: str) -> str:
@@ -105,23 +110,22 @@ async def export_excel(
     for i, r in enumerate(valid_rows, 1):
         fill = fe if i % 2 == 0 else fo
         vals = [
-            i,
             r.get("full_plate", ""),
-            r.get("vehicle_type", "ملاكى"),
+            r.get("gps", ""),
+            r.get("recording_date", ""),
             r.get("street_name", "غير محدد"),
             r.get("location_details", ""),
+            r.get("vehicle_type", "ملاكى"),
             r.get("recorder_name", ""),
-            r.get("recording_date", ""),
-            r.get("gps", ""),
             street_location,
         ]
         for col, v in enumerate(vals, 1):
             cell = ws.cell(row=i + 1, column=col, value=v)
-            cell.font = pf if col == 2 else df
+            cell.font = pf if col == 1 else df
             cell.alignment = ca
             cell.border = brd; cell.fill = fill
 
-    for col, w in zip("ABCDEFGHI", _COL_WIDTHS):
+    for col, w in zip("ABCDEFGH", _COL_WIDTHS):
         ws.column_dimensions[col].width = w
 
     content = await workbook_to_bytes_async(wb)
@@ -166,11 +170,16 @@ async def export_field_check(
     fo    = PatternFill("solid", start_color="FFFFFF")
 
     headers = [
-        "#", "رقم اللوحة", "نوع المركبة", "الشارع",
-        "تفاصيل الموقع", "اسم المسجّل", "تاريخ التسجيل",
-        "GPS", "موقع الشارع",
+        "رقم اللوحة",
+        "GPS",
+        "تاريخ التسجيل",
+        "الشارع",
+        "تفاصيل الموقع",
+        "نوع المركبة",
+        "اسم المسجّل",
+        "موقع الشارع",
     ]
-    col_widths = [5, 22, 14, 22, 40, 20, 18, 26, 26]
+    col_widths = [22, 26, 18, 22, 40, 14, 20, 26]
 
     for col, h in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=h)
@@ -192,23 +201,22 @@ async def export_field_check(
     for i, r in enumerate(valid_rows, 1):
         fill = fe if i % 2 == 0 else fo
         vals = [
-            i,
             r.get("full_plate", ""),
-            r.get("vehicle_type", "ملاكى"),
+            r.get("gps", ""),
+            r.get("recording_date", ""),
             r.get("street_name", "غير محدد"),
             r.get("location_details", ""),
+            r.get("vehicle_type", "ملاكى"),
             r.get("recorder_name", ""),
-            r.get("recording_date", ""),
-            r.get("gps", ""),
             street_location,
         ]
         for col, v in enumerate(vals, 1):
             cell = ws.cell(row=i + 1, column=col, value=v)
-            cell.font = pf if col == 2 else df
+            cell.font = pf if col == 1 else df
             cell.alignment = ca
             cell.border = brd; cell.fill = fill
 
-    for col, w in zip("ABCDEFGHI", col_widths):
+    for col, w in zip("ABCDEFGH", col_widths):
         ws.column_dimensions[col].width = w
 
     content = await workbook_to_bytes_async(wb)
@@ -238,29 +246,38 @@ def _parse_excel_sync(content: bytes) -> tuple[list[dict], int]:
         if all(c is None for c in row):
             continue
 
+        def cell_at(ci: int) -> str:
+            if ci < 0 or ci >= len(row) or row[ci] is None:
+                return ""
+            return str(row[ci]).strip()
+
         def col(name: str, fallback: int) -> str:
             for i, h in enumerate(headers):
-                if name in h:
-                    return (
-                        str(row[i]).strip()
-                        if i < len(row) and row[i] is not None
-                        else ""
-                    )
-            return (
-                str(row[fallback]).strip()
-                if fallback < len(row) and row[fallback] is not None
-                else ""
-            )
+                hs = str(h).strip() if h else ""
+                if not hs:
+                    continue
+                if name == "الشارع":
+                    if hs == "موقع الشارع" or hs.startswith("موقع الشارع"):
+                        continue
+                    if "الشارع" in hs:
+                        return cell_at(i)
+                    continue
+                if name not in hs:
+                    continue
+                return cell_at(i)
+            return cell_at(fallback)
 
+        # Fallback indices: new export order (no #): plate, gps, date, street, details, vehicle, recorder, street_loc
+        # Legacy files with "#" column still match by header text first.
         rows_out.append({
-            "full_plate":       col("اللوحة", 1),
-            "vehicle_type":     col("المركبة", 2),
+            "full_plate":       col("اللوحة", 0),
+            "gps":              col("GPS", 1),
+            "recording_date":   col("التسجيل", 2),
             "street_name":      col("الشارع", 3),
             "location_details": col("الموقع", 4),
-            "notes":            col("ملاحظات", 5),
+            "vehicle_type":     col("المركبة", 5),
             "recorder_name":    col("المسجّل", 6),
-            "recording_date":   col("التسجيل", 7),
-            "gps":              col("GPS", 8),
+            "notes":            col("ملاحظات", -1),
         })
 
     return rows_out, len(rows_out)

@@ -5,7 +5,6 @@
 <title>التفريغ — License Plate Extractor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Kufi+Arabic:wght@400;600;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js" crossorigin="anonymous"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -471,7 +470,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
   <div class="logo">&#x1F697;</div>
   <div>
     <div class="app-title">التفريغ</div>
-    <p>License Plate Extractor &middot; GPS &middot; MP3 &middot; v5.5</p>
+    <p>License Plate Extractor &middot; GPS &middot; v5.5</p>
   </div>
   <div class="header-actions">
     <span class="vtag">v5.5</span>
@@ -528,7 +527,6 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
         <button class="choice-btn addrec" onclick="addToQueue()">&#x2795; إضافة للقائمة</button>
         <button class="choice-btn direct" onclick="directSend()">&#x26A1; إرسال مباشر</button>
       </div>
-      <div class="converting-lbl" id="convertingLbl"><div class="spin" style="width:12px;height:12px;border-width:2px"></div>جاري التحويل إلى MP3 …</div>
       <div class="timer" id="timer">00:00 / 05:00</div>
       <div class="rec-progress" id="recProgress"><div class="rec-bar" id="recBar"></div></div>
       <div class="audio-wrap" id="liveAudioWrap" style="width:100%;max-width:480px">
@@ -538,7 +536,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
             <div class="progress-fill" id="livePF"></div><div class="progress-thumb" id="livePT"></div>
           </div>
           <span class="time-txt" id="liveTT">0:00 / 0:00</span>
-          <button class="dl-audio-btn" onclick="downloadLiveAudio()">&#x2B07; MP3</button>
+          <button class="dl-audio-btn" onclick="downloadLiveAudio()">&#x2B07; تسجيل</button>
         </div>
         <div class="speed-row">
           <label>السرعة</label>
@@ -653,7 +651,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
   </div>
   <div class="tbl-outer">
     <table>
-      <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th><th></th></tr></thead>
+      <thead><tr><th>رقم اللوحة</th><th>GPS</th><th>تاريخ التسجيل</th><th>الشارع</th><th>تفاصيل الموقع</th><th>نوع المركبة</th><th>اسم المسجّل</th><th>موقع الشارع</th><th></th></tr></thead>
       <tbody id="excelBody"></tbody>
     </table>
   </div>
@@ -757,9 +755,6 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
         &#x1F50D; التشيك
       </button>
     </div>
-    <div class="converting-lbl" id="fcConvertingLbl">
-      <div class="spin" style="width:12px;height:12px;border-width:2px"></div>جاري التحويل إلى MP3 …
-    </div>
     <div class="timer" id="fcTimer">00:00 / 05:00</div>
     <div class="rec-progress" id="fcRecProgress"><div class="rec-bar" id="fcRecBar"></div></div>
     <div class="audio-wrap" id="fcAudioWrap" style="width:100%;max-width:480px">
@@ -769,7 +764,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
           <div class="progress-fill" id="fcPF"></div><div class="progress-thumb" id="fcPT"></div>
         </div>
         <span class="time-txt" id="fcTT">0:00 / 0:00</span>
-        <button class="dl-audio-btn" onclick="fcDownloadAudio()">&#x2B07; MP3</button>
+        <button class="dl-audio-btn" onclick="fcDownloadAudio()">&#x2B07; تسجيل</button>
       </div>
       <div class="speed-row">
         <label>السرعة</label>
@@ -819,7 +814,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     </div>
     <div class="tbl-outer">
       <table>
-        <thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th></tr></thead>
+        <thead><tr><th>رقم اللوحة</th><th>GPS</th><th>تاريخ التسجيل</th><th>الشارع</th><th>تفاصيل الموقع</th><th>نوع المركبة</th><th>اسم المسجّل</th><th>موقع الشارع</th></tr></thead>
         <tbody id="fcExtractedBody"></tbody>
       </table>
     </div>
@@ -837,7 +832,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     </div>
     <div class="tbl-outer" style="margin-bottom:1rem">
       <table>
-        <thead><tr><th>#</th><th>رقم اللوحة &#x2705;</th><th>خريطة</th><th>نوع المركبة</th><th>الشارع</th><th>تفاصيل الموقع</th><th>اسم المسجّل</th><th>تاريخ التسجيل</th><th>GPS</th><th>موقع الشارع</th></tr></thead>
+        <thead><tr><th>رقم اللوحة &#x2705;</th><th>خريطة</th><th>GPS</th><th>تاريخ التسجيل</th><th>الشارع</th><th>تفاصيل الموقع</th><th>نوع المركبة</th><th>اسم المسجّل</th><th>موقع الشارع</th></tr></thead>
         <tbody id="fcMatchedBody"></tbody>
       </table>
     </div>
@@ -920,7 +915,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
           <summary>اختر الأعمدة الظاهرة في ورقة التطابق…</summary>
           <div id="checkSmallExportList" style="margin-top:.55rem;display:grid;grid-template-columns:1fr 1fr;gap:.25rem .8rem"></div>
         </details>
-        <p class="check-export-hint">لا يُحدَّد شيء تلقائياً &mdash; اختر الأعمدة التي تريدها في التصدير. بادئة «صغير —» في عنوان العمود. بدون اختيار لا تُصدَّر أعمدة من الملف الصغير.</p>
+        <p class="check-export-hint">مثل الملف الكبير: يُحدَّد كل العمود تلقائياً؛ يمكنك تعديل الاختيار. بادئة «صغير —» في عنوان العمود في Excel.</p>
       </div>
       <div style="margin-top:.65rem;padding:.75rem;background:var(--s2);border:1px solid var(--brd);border-radius:8px">
         <p style="font-size:.73rem;color:var(--dim2);line-height:1.6">&#x1F4A1; الأعمدة المكتشفة تلقائياً:<br/>
@@ -941,13 +936,20 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
     <div class="ptitle violet">&#x1F4CA; نتيجة المطابقة</div>
     <div class="result-stats">
       <div class="stat-card"><div class="stat-n green" id="rMatched">&mdash;</div><div class="stat-lbl">صفوف مُطابَقة</div></div>
-      <div class="stat-card"><div class="stat-n violet" id="rPlates">&mdash;</div><div class="stat-lbl">لوحات مطابَقة</div></div>
+      <div class="stat-card"><div class="stat-n violet" id="rPlates">&mdash;</div><div class="stat-lbl">مطابقات من الصغير</div></div>
       <div class="stat-card"><div class="stat-n red" id="rUnmatched">&mdash;</div><div class="stat-lbl">غير مطابَقة</div></div>
     </div>
     <div style="font-family:var(--mono);font-size:.73rem;color:var(--dim2);margin-bottom:.9rem;line-height:1.7">
       عمود الكبير: <span style="color:var(--sky)" id="rLargeCol">&mdash;</span> &nbsp;|&nbsp; عمود الصغير: <span style="color:var(--violet)" id="rSmallCol">&mdash;</span>
     </div>
-    <button class="dl-btn" id="checkDlBtn" onclick="downloadResult()">&#x2B07; تحميل ملف التطابقات (Excel)</button>
+    <p id="checkMatchTruncNote" style="display:none;font-size:.72rem;color:var(--amber);margin-bottom:.6rem"></p>
+    <div class="tbl-outer" id="checkMatchTableWrap" style="display:none;margin-bottom:1rem;max-height:min(70vh,520px);overflow:auto">
+      <table style="font-size:.78rem">
+        <thead id="checkMatchThead"></thead>
+        <tbody id="checkMatchTbody"></tbody>
+      </table>
+    </div>
+    <button class="dl-btn" id="checkDlBtn" onclick="openExcelResult()" style="display:none">&#x1F4C2; فتح في Excel على الجهاز</button>
   </div>
 
   <div id="gpsMatchSection" style="display:none">
@@ -955,18 +957,7 @@ tbody td{padding:.6rem .85rem;vertical-align:middle;font-size:.83rem}
       <div class="ptitle teal">&#x1F4CD; إعدادات مطابقة GPS</div>
       <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;padding:.6rem .9rem;background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.25);border-radius:8px">
         <span>&#x2705;</span>
-        <span style="font-size:.78rem;color:var(--teal);font-weight:700">تم اكتشاف عمود GPS في الملف الكبير &mdash; بعد الضغط على Match يُرتَّب أقرب المركبات تلقائياً إن وُجد مفتاح ORS وموقعك أدناه</span>
-      </div>
-      <!-- ═══ ORS KEY: readonly, loaded from settings ═══ -->
-      <div style="margin-bottom:.85rem">
-        <label class="lbl">&#x1F511; ORS API Key</label>
-        <div style="display:flex;gap:.5rem;align-items:center">
-          <input type="password" id="orsKey" placeholder="مُحمَّل من الإعدادات &#x2699;&#xFE0F;" class="teal-focus" style="flex:1" readonly/>
-          <button class="tb-btn outline" onclick="openSettings()" style="white-space:nowrap">&#x2699; الإعدادات</button>
-        </div>
-        <div id="orsKeyStatus" style="font-size:.71rem;color:var(--dim2);margin-top:.35rem">
-          &#x1F4A1; المفتاح يُحمَّل تلقائياً من &#x2699; الإعدادات
-        </div>
+        <span style="font-size:.78rem;color:var(--teal);font-weight:700">تم اكتشاف عمود GPS في الملف الكبير &mdash; بعد Match يُرتَّب أقرب المركبات باستخدام مفتاح ORS من &#x2699; الإعدادات وموقعك أدناه</span>
       </div>
       <div style="margin-bottom:.9rem">
         <label class="lbl">&#x1F4CD; موقعك الحالي (نقطة الانطلاق)</label>
@@ -1180,21 +1171,14 @@ function toggleApiEye(){
   i.type=i.type==='password'?'text':'password';
   b.textContent=i.type==='password'?'👁':'🙈';
 }
-// ── MP3 conversion ────────────────────────────────────
-function float32ToInt16(f32){const i16=new Int16Array(f32.length);for(let i=0;i<f32.length;i++){const s=Math.max(-1,Math.min(1,f32[i]));i16[i]=s<0?s*32768:s*32767;}return i16;}
-async function convertToMp3(b){
-  try{
-    if(typeof lamejs==='undefined')throw new Error('no lamejs');
-    const ab=await b.arrayBuffer();
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const buf=await ctx.decodeAudioData(ab);await ctx.close();
-    const ch=buf.numberOfChannels,sr=buf.sampleRate,mode=ch>1?2:1;
-    const enc=new lamejs.Mp3Encoder(mode,sr,128);const bs=1152,mp3=[];
-    if(mode===1){const s=float32ToInt16(buf.getChannelData(0));for(let i=0;i<s.length;i+=bs){const x=enc.encodeBuffer(s.subarray(i,i+bs));if(x.length>0)mp3.push(new Uint8Array(x));}}
-    else{const L=float32ToInt16(buf.getChannelData(0)),R=float32ToInt16(buf.getChannelData(1));for(let i=0;i<L.length;i+=bs){const x=enc.encodeBuffer(L.subarray(i,i+bs),R.subarray(i,i+bs));if(x.length>0)mp3.push(new Uint8Array(x));}}
-    const fl=enc.flush();if(fl.length>0)mp3.push(new Uint8Array(fl));
-    return new Blob(mp3,{type:'audio/mp3'});
-  }catch(e){console.warn('[MP3]',e);return b;}
+// ── Audio blob extension (تسجيل مباشر = WebM/Opus بدون تحويل) ──
+function audioBlobExt(blob){
+  const t=(blob&&blob.type)||'';
+  if(t.includes('mpeg')||t.includes('mp3'))return 'mp3';
+  if(t.includes('webm'))return 'webm';
+  if(t.includes('ogg'))return 'ogg';
+  if(t.includes('mp4')||t.includes('m4a'))return 'm4a';
+  return 'webm';
 }
 // ══ SETTINGS MODAL ══════════════════════════════════════════
 let _sMTab = 1;
@@ -1266,14 +1250,15 @@ function saveSettings(){
   localStorage.setItem('sGoogleMapsKey', gk);
   localStorage.setItem('sModelTab',   String(_sMTab));
   localStorage.setItem('sModelManual',mm);
-  const orsEl = document.getElementById('orsKey');
-  if(orsEl) orsEl.value = ok;
   checkReady(); fcCheckReady();
   closeSettings();
 }
 
 function getApiKey(){
   return localStorage.getItem('sApiKey') || '';
+}
+function getOrsKey(){
+  return localStorage.getItem('sOrsKey') || '';
 }
 function getModelName(){
   const mt = parseInt(localStorage.getItem('sModelTab') || '1');
@@ -1285,9 +1270,6 @@ function getModelName(){
 }
 
 function loadSettings(){
-  const ok = localStorage.getItem('sOrsKey') || '';
-  const orsEl = document.getElementById('orsKey');
-  if(orsEl && ok) orsEl.value = ok;
   const mt = parseInt(localStorage.getItem('sModelTab') || '1');
   _sMTab = mt;
 }
@@ -1309,11 +1291,12 @@ function b64ToFile(b64, name, type){
 }
 
 async function persistCheckFile(side, file){
+  if(side!=='large') return;
   try{
     const b64  = await fileToB64(file);
     const meta = JSON.stringify({name:file.name, type:file.type, size:file.size});
-    localStorage.setItem('checkFile_'+side+'_b64',  b64);
-    localStorage.setItem('checkFile_'+side+'_meta', meta);
+    localStorage.setItem('checkFile_large_b64',  b64);
+    localStorage.setItem('checkFile_large_meta', meta);
   }catch(e){}
 }
 function clearPersistedCheckFile(side){
@@ -1321,27 +1304,22 @@ function clearPersistedCheckFile(side){
   localStorage.removeItem('checkFile_'+side+'_meta');
 }
 async function loadPersistedCheckFiles(){
-  for(const side of ['large','small']){
-    const b64  = localStorage.getItem('checkFile_'+side+'_b64');
-    const meta = localStorage.getItem('checkFile_'+side+'_meta');
-    if(!b64||!meta) continue;
-    try{
-      const m    = JSON.parse(meta);
-      const file = b64ToFile(b64, m.name, m.type);
-      if(side==='large'){
-        checkLargeFile = file;
-        document.getElementById('largeFname').textContent = '\u{1F4CE} '+m.name;
-        document.getElementById('removeLargeBtn').classList.add('show');
-        detectColForSide('large');
-      } else {
-        checkSmallFile = file;
-        document.getElementById('smallFname').textContent = '\u{1F4CE} '+m.name;
-        document.getElementById('removeSmallBtn').classList.add('show');
-        detectColForSide('small');
-      }
-      checkRunReady();
-    }catch(e){}
-  }
+  try{
+    localStorage.removeItem('checkFile_small_b64');
+    localStorage.removeItem('checkFile_small_meta');
+  }catch(e){}
+  const b64  = localStorage.getItem('checkFile_large_b64');
+  const meta = localStorage.getItem('checkFile_large_meta');
+  if(!b64||!meta) return;
+  try{
+    const m    = JSON.parse(meta);
+    const file = b64ToFile(b64, m.name, m.type);
+    checkLargeFile = file;
+    document.getElementById('largeFname').textContent = '\u{1F4CE} '+m.name;
+    document.getElementById('removeLargeBtn').classList.add('show');
+    detectColForSide('large');
+    checkRunReady();
+  }catch(e){}
 }
 
 // ══ CLEAR MATCHED RESULTS in التشيك ═════════════════════════════════════════
@@ -1830,7 +1808,7 @@ async function getMicStreamOrThrow(){
 }
 // ── Tafrigh recording ─────────────────────────────────
 function onRecBtnClick(){if(recState==='idle')startFreshRec();else if(recState==='recording')stopRec();}
-async function startFreshRec(){allChunks=[];curChunks=[];liveGps=[];recSecs=0;liveBlob=null;liveAudioUrl=null;document.getElementById('pinCount').textContent='0 نقطة';document.getElementById('gLog').innerHTML='';document.getElementById('convertingLbl').classList.remove('show');await doStartRec();}
+async function startFreshRec(){allChunks=[];curChunks=[];liveGps=[];recSecs=0;liveBlob=null;liveAudioUrl=null;document.getElementById('pinCount').textContent='0 نقطة';document.getElementById('gLog').innerHTML='';await doStartRec();}
 async function continueRec(){curChunks=[];hideChoices();await doStartRec();}
 function startNewRec(){hideChoices();startFreshRec();}
 async function doStartRec(){
@@ -1844,17 +1822,13 @@ async function doStartRec(){
       allChunks=[...allChunks,...curChunks];
       const raw=new Blob(allChunks,{type:mediaRec.mimeType||'audio/webm'});
       document.getElementById('recChoices').classList.remove('show');
-      document.getElementById('convertingLbl').classList.add('show');
       document.getElementById('recLbl').textContent='';
-      (async()=>{
-        liveBlob=await convertToMp3(raw);
-        if(liveAudioUrl)URL.revokeObjectURL(liveAudioUrl);
-        liveAudioUrl=URL.createObjectURL(liveBlob);
-        setAudioSrc('live',liveAudioUrl);
-        document.getElementById('liveAudioWrap').classList.add('show');
-        document.getElementById('convertingLbl').classList.remove('show');
-        showChoices();checkReady();playStopSound();
-      })();
+      liveBlob=raw;
+      if(liveAudioUrl)URL.revokeObjectURL(liveAudioUrl);
+      liveAudioUrl=URL.createObjectURL(liveBlob);
+      setAudioSrc('live',liveAudioUrl);
+      document.getElementById('liveAudioWrap').classList.add('show');
+      showChoices();checkReady();playStopSound();
     };
     mediaRec.start(500);
     if(gpsMode==='auto'){const iv=parseInt(document.getElementById('gpsInt').value)||5;collectAutoGps();autoTimer=setInterval(collectAutoGps,iv*1000);setDot('on','تلقائي كل '+iv+'s');}
@@ -1887,7 +1861,7 @@ function updateTimerUI(){
   const warn=(MAX_REC_SECS-recSecs)<=60;
   document.getElementById('timer').classList.toggle('warn',warn);document.getElementById('recBar').classList.toggle('warn',warn);
 }
-function downloadLiveAudio(){if(!liveBlob)return;const ts=new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');triggerDownload(liveBlob,'تسجيل_'+ts+'.mp3');}
+function downloadLiveAudio(){if(!liveBlob)return;const ts=new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');triggerDownload(liveBlob,'تسجيل_'+ts+'.'+audioBlobExt(liveBlob));}
 // ── Audio player ──────────────────────────────────────
 function bindAudioPlayer(key){
   const a=audioEls[key];if(!a)return;
@@ -2000,7 +1974,7 @@ async function directSend(){
   showStatus('proc','\u062C\u0627\u0631\u064A \u0627\u0644\u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0645\u0628\u0627\u0634\u0631\u2026',true);
 
   const fd=new FormData();
-  const ext=blob.type&&blob.type.includes('mp3')?'mp3':'webm';
+  const ext=audioBlobExt(blob);
   fd.append('audio',blob,'recording.'+ext);
   fd.append('gps_data',JSON.stringify(gps));
   fd.append('api_key',apiKey);
@@ -2037,7 +2011,6 @@ function _resetLiveUI(){
     liveBlob=null;liveAudioUrl=null;allChunks=[];liveGps=[];recSecs=0;recState='idle';
     document.getElementById('liveAudioWrap').classList.remove('show');
     document.getElementById('recChoices').classList.remove('show');
-    document.getElementById('convertingLbl').classList.remove('show');
     document.getElementById('recLbl').textContent='اضغط للتسجيل';
     document.getElementById('gCnt').textContent='0';
     document.getElementById('pinCount').textContent='0 نقطة';
@@ -2052,7 +2025,7 @@ function _resetLiveUI(){
 function dlQueueAudio(idx){
   const item=queueItems[idx];if(!item||!item.blob)return;
   const ts=new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
-  triggerDownload(item.blob,'\u062A\u0633\u062C\u064A\u0644_'+ts+'.mp3');
+  triggerDownload(item.blob,'\u062A\u0633\u062C\u064A\u0644_'+ts+'.'+audioBlobExt(item.blob));
 }
 function renderQueue(){
   const list=document.getElementById('queueList');
@@ -2074,7 +2047,7 @@ function renderQueue(){
       ?'<div style="font-size:.65rem;color:var(--red);margin-top:.25rem;font-family:var(--mono)">&#x26A0; '+esc(item.lastError)+'</div>'
       :'';
     const dlBtn=isDone
-      ?'<button class="qbtn dl" onclick="dlQueueAudio('+idx+')" title="\u062A\u0646\u0632\u064A\u0644 MP3">&#x2B07; MP3</button>'
+      ?'<button class="qbtn dl" onclick="dlQueueAudio('+idx+')" title="\u062A\u0646\u0632\u064A\u0644 \u0627\u0644\u062A\u0633\u062C\u064A\u0644">&#x2B07; \u062A\u0633\u062C\u064A\u0644</button>'
       :'';
     const sendBtn=(!isDone)
       ?'<button class="qbtn send" onclick="sendItem('+idx+')" '+(canSend?'':'disabled')+'>\u0625\u0631\u0633\u0627\u0644</button>'
@@ -2109,7 +2082,7 @@ async function sendItem(idx){
   showStatus('proc','جاري تحليل "'+item.name+'" …',true);
   addLog('بدء تحليل: '+item.name,'info');
   const fd=new FormData();
-  const ext=item.blob.type&&item.blob.type.includes('mp3')?'mp3':'webm';
+  const ext=audioBlobExt(item.blob);
   fd.append('audio',item.blob,'recording.'+ext);
   fd.append('gps_data',JSON.stringify(item.gps));
   fd.append('api_key',apiKey);fd.append('model_name',getModelName());
@@ -2158,14 +2131,14 @@ function renderTable(){
   const streetLoc = midGpsValue(tableRows);
   tableRows.forEach((row,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML='<td class="td-num">'+(i+1)+'</td>'
-      +'<td class="td-plate td-edit" contenteditable="true" onblur="editCell('+i+',\'full_plate\',this.textContent)">'+esc(row.full_plate||row.plate||'')+'</td>'
-      +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'vehicle_type\',this.textContent)">'+esc(row.vehicle_type||'')+'</td>'
+    tr.innerHTML=
+      '<td class="td-plate td-edit" contenteditable="true" onblur="editCell('+i+',\'full_plate\',this.textContent)">'+esc(row.full_plate||row.plate||'')+'</td>'
+      +'<td class="td-gps">'+esc(row.gps||'—')+'</td>'
+      +'<td class="td-edit" style="font-family:var(--mono);font-size:.78rem" contenteditable="true" onblur="editCell('+i+',\'recording_date\',this.textContent)">'+esc(row.recording_date||'')+'</td>'
       +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'street_name\',this.textContent)">'+esc(row.street_name||'')+'</td>'
       +'<td class="td-edit td-locdetails" style="font-size:.78rem;color:var(--dim2)" contenteditable="true" onblur="editCell('+i+',\'location_details\',this.textContent)">'+esc(row.location_details||'')+'</td>'
+      +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'vehicle_type\',this.textContent)">'+esc(row.vehicle_type||'')+'</td>'
       +'<td class="td-edit" contenteditable="true" onblur="editCell('+i+',\'recorder_name\',this.textContent)">'+esc(row.recorder_name||'')+'</td>'
-      +'<td class="td-edit" style="font-family:var(--mono);font-size:.78rem" contenteditable="true" onblur="editCell('+i+',\'recording_date\',this.textContent)">'+esc(row.recording_date||'')+'</td>'
-      +'<td class="td-gps">'+esc(row.gps||'—')+'</td>'
       +'<td class="td-gps">'+esc(streetLoc||'—')+'</td>'
       +'<td><button class="del-row" onclick="deleteRow('+i+')">✕</button></td>';
     body.appendChild(tr);
@@ -2214,6 +2187,7 @@ function onCheckFileChange(file,side){
     if(!document.getElementById('largeCol').value.trim())setBadge('large','pending','...');
     checkResultBlob=null;
     document.getElementById('checkResultBox').classList.remove('show');
+    if(typeof renderCheckMatchPreview==='function') renderCheckMatchPreview(null);
     document.getElementById('checkHeadersHint').style.display='none';
     detectColForSide('large');
     persistCheckFile('large',file);
@@ -2224,8 +2198,8 @@ function onCheckFileChange(file,side){
     if(!document.getElementById('smallCol').value.trim())setBadge('small','pending','...');
     checkResultBlob=null;
     document.getElementById('checkResultBox').classList.remove('show');
+    if(typeof renderCheckMatchPreview==='function') renderCheckMatchPreview(null);
     detectColForSide('small');
-    persistCheckFile('small',file);
   }
   checkRunReady();
 }
@@ -2292,6 +2266,7 @@ function resetCheckDetect(){
   document.getElementById('gpsMatchSection').style.display='none';
   document.getElementById('gpsResultBox').classList.remove('show');
   checkResultBlob=null;
+  if(typeof renderCheckMatchPreview==='function') renderCheckMatchPreview(null);
   document.getElementById('checkResultBox').classList.remove('show');
   document.getElementById('checkHeadersHint').style.display='none';
   ['large','small'].forEach(s=>{if(!document.getElementById(s+'Col').value.trim())setBadge(s,'pending','\u2014');});
@@ -2333,7 +2308,7 @@ async function detectColForSide(side){
       if(info.headers&&info.headers.length)showHeadersHint(side,info.headers);
     }
     if((side==='large'||side==='small')&&!info.error){
-      rebuildCheckExportChoices(side,info.headers||[],side==='large');
+      rebuildCheckExportChoices(side,info.headers||[],true);
     }
     if(side==='large'&&!info.error){
       checkLargeHasGps=!!(info.headers&&info.headers.includes('GPS'));
@@ -2361,6 +2336,7 @@ function checkRunReady(){document.getElementById('checkMatchBtn').disabled=!(che
 async function runMatch(){
   if(!checkLargeFile||!checkSmallFile){showCheckStatus('err','\u064A\u0631\u062C\u0649 \u0631\u0641\u0639 \u0643\u0644\u0627 \u0627\u0644\u0645\u0644\u0641\u064A\u0646');return;}
   checkResultBlob=null;document.getElementById('checkResultBox').classList.remove('show');
+  renderCheckMatchPreview(null);
   document.getElementById('checkHeadersHint').style.display='none';document.getElementById('checkHeadersContent').innerHTML='';
   gpsResultBlob=null;document.getElementById('gpsResultBox').classList.remove('show');
   document.getElementById('gpsResultTableWrap').style.display='none';
@@ -2387,12 +2363,21 @@ async function runMatch(){
       const bytes=new Uint8Array(bin.length);
       for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
       checkResultBlob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-      showCheckStatus('ok','\u2705 \u062A\u0645\u062A \u0627\u0644\u0645\u0637\u0627\u0628\u0642\u0629 \u2014 \u0627\u0636\u063A\u0637 \u0644\u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0645\u0644\u0641');
+      showCheckStatus('ok','\u2705 \u062A\u0645\u062A \u0627\u0644\u0645\u0637\u0627\u0628\u0642\u0629 \u2014 \u0627\u0644\u0646\u062A\u0627\u0626\u062C \u0623\u062F\u0646\u0627\u0647 \u0648\u064A\u0645\u0643\u0646 \u0641\u062A\u062D\u0647\u0627 \u0641\u064A Excel');
       const lu=document.getElementById('largeCol').value.trim()||checkDetected.large||'\u2014';
       const su=document.getElementById('smallCol').value.trim()||checkDetected.small||'\u2014';
-      document.getElementById('rMatched').textContent='\u2714';document.getElementById('rPlates').textContent='\u2714';document.getElementById('rUnmatched').textContent='\u2014';
       document.getElementById('rLargeCol').textContent=lu;document.getElementById('rSmallCol').textContent=su;
-      document.getElementById('checkDlBtn').style.display='';document.getElementById('checkResultBox').classList.add('show');
+      const pv=result.preview;
+      if(pv&&pv.stats){
+        document.getElementById('rMatched').textContent=String(pv.stats.matched_rows!=null?pv.stats.matched_rows:'\u2014');
+        document.getElementById('rPlates').textContent=String(pv.stats.matched_plate_hits!=null?pv.stats.matched_plate_hits:'\u2014');
+        document.getElementById('rUnmatched').textContent=String(pv.stats.unmatched_plates!=null?pv.stats.unmatched_plates:'\u2014');
+      }else{
+        document.getElementById('rMatched').textContent='\u2714';document.getElementById('rPlates').textContent='\u2714';document.getElementById('rUnmatched').textContent='\u2014';
+      }
+      renderCheckMatchPreview(pv||null);
+      document.getElementById('checkDlBtn').style.display='';
+      document.getElementById('checkResultBox').classList.add('show');
       if(checkLargeHasGps) await runGpsNearestAfterMatch();
     }else if(result.kind==='json'){
       const data=result.body;
@@ -2417,14 +2402,128 @@ async function runMatch(){
     document.getElementById('checkMatchBtn').disabled=false;
   }
 }
-function downloadResult(){if(!checkResultBlob)return;const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');triggerDownload(checkResultBlob,'\u0627\u0644\u062A\u0637\u0627\u0628\u0642\u0627\u062A_'+ts+'.xlsx');}
+function checkIsGpsHeader(h){
+  const t=String(h||'').trim();
+  if(/^GPS$/i.test(t)) return true;
+  if(/^صغير\s*[—-]\s*GPS$/i.test(t)) return true;
+  return false;
+}
+function checkParseGpsCoords(val){
+  if(val==null||val==='') return null;
+  const t=String(val).trim();
+  if(!t.includes(',')) return null;
+  const parts=t.split(',');
+  if(parts.length<2) return null;
+  const lat=parseFloat(parts[0].trim());
+  const lng=parseFloat(parts[1].trim());
+  if(isNaN(lat)||isNaN(lng)) return null;
+  if(Math.abs(lat)>90||Math.abs(lng)>180) return null;
+  return {lat:lat,lng:lng};
+}
+function checkCellDisplayHtml(header,val){
+  const raw=val==null?'':String(val);
+  const coords=checkParseGpsCoords(raw);
+  if(coords&&checkIsGpsHeader(header)){
+    const href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(coords.lat+','+coords.lng);
+    return '<a class="maps-link" href="'+href+'" target="_blank" rel="noopener" title="فتح الخريطة">&#x1F4CD; فتح الخريطة</a>';
+  }
+  return esc(raw);
+}
+function renderCheckMatchPreview(preview){
+  const wrap=document.getElementById('checkMatchTableWrap');
+  const thead=document.getElementById('checkMatchThead');
+  const tbody=document.getElementById('checkMatchTbody');
+  const note=document.getElementById('checkMatchTruncNote');
+  if(!wrap||!thead||!tbody) return;
+  if(!preview||!preview.headers||!preview.headers.length){
+    wrap.style.display='none';
+    if(note){ note.style.display='none'; note.textContent=''; }
+    thead.innerHTML='';
+    tbody.innerHTML='';
+    return;
+  }
+  if(!preview.rows||!preview.rows.length){
+    thead.innerHTML='<tr>'+preview.headers.map(function(h){ return '<th>'+esc(h)+'</th>'; }).join('')+'</tr>';
+    tbody.innerHTML='';
+    wrap.style.display='';
+    if(note) note.style.display='none';
+    return;
+  }
+  thead.innerHTML='<tr>'+preview.headers.map(function(h){ return '<th>'+esc(h)+'</th>'; }).join('')+'</tr>';
+  tbody.innerHTML='';
+  preview.rows.forEach(function(row){
+    const tr=document.createElement('tr');
+    row.forEach(function(cell,idx){
+      const td=document.createElement('td');
+      td.className='td-gps';
+      td.innerHTML=checkCellDisplayHtml(preview.headers[idx],cell);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  wrap.style.display='';
+  if(note){
+    if(preview.truncated){
+      note.textContent='عرض أول '+preview.rows.length+' صف من أصل '+preview.total_rows+' — الملف الكامل عند الفتح في Excel.';
+      note.style.display='';
+    }else{
+      note.style.display='none';
+      note.textContent='';
+    }
+  }
+}
+function getCheckMatchExcelFilename(){
+  const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+  return '\u0627\u0644\u062A\u0637\u0627\u0628\u0642\u0627\u062A_'+ts+'.xlsx';
+}
+async function openExcelResult(){
+  if(!checkResultBlob) return;
+  const filename=getCheckMatchExcelFilename();
+  const mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const file=new File([checkResultBlob],filename,{type:mime});
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:filename});
+      return;
+    }
+  }catch(e){
+    if(e&&e.name==='AbortError') return;
+  }
+  const url=URL.createObjectURL(checkResultBlob);
+  try{
+    const win=window.open(url,'_blank','noopener,noreferrer');
+    if(win){
+      setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(_){} },120000);
+      return;
+    }
+  }catch(_){}
+  try{
+    if(window.showSaveFilePicker){
+      const base=filename.replace(/\.xlsx$/i,'');
+      const h=await window.showSaveFilePicker({
+        suggestedName:base||'التطابقات',
+        types:[{description:'Excel',accept:{[mime]:['.xlsx']}}]
+      });
+      const w=await h.createWritable();
+      await w.write(checkResultBlob);
+      await w.close();
+      try{ URL.revokeObjectURL(url); }catch(_){}
+      showCheckStatus('ok','\u2705 \u062A\u0645 \u062D\u0641\u0638 \u0627\u0644\u0645\u0644\u0641. \u0627\u0641\u062A\u062D\u0647 \u0641\u064A Excel \u0645\u0646 \u0627\u0644\u0645\u0648\u0636\u0639 \u0627\u0644\u0630\u064A \u0627\u062E\u062A\u0631\u062A\u0647.');
+      return;
+    }
+  }catch(e){
+    if(e&&e.name==='AbortError'){ try{ URL.revokeObjectURL(url); }catch(_){} return; }
+  }
+  try{ URL.revokeObjectURL(url); }catch(_){}
+  triggerDownload(checkResultBlob,filename);
+  showCheckStatus('warn','\u062A\u0645 \u062A\u0646\u0632\u064A\u0644 \u0627\u0644\u0645\u0644\u0641 \u2014 \u0627\u0641\u062A\u062D\u0647 \u0645\u0646 \u0627\u0644\u0645\u062C\u0644\u062F \u0623\u0648 \u0627\u0644\u062A\u0646\u0632\u064A\u0644\u0627\u062A \u0641\u064A Excel.');
+}
 function togglePw(inputId,btn){const inp=document.getElementById(inputId);inp.type=inp.type==='password'?'text':'password';btn.textContent=inp.type==='password'?'\u{1F441}':'\u{1F648}';}
 function confirmLargePw(){
   if(!checkLargeFile){showCheckStatus('err','يرجى رفع الملف الكبير أولاً');return;}
   resetCheckDetect();
   detectColForSide('large');
 }
-function toggleOrsPw(){const inp=document.getElementById('orsKey');inp.type=inp.type==='password'?'text':'password';}
 function refreshCheckLoc(){
   const btn=document.getElementById('checkLocBtn');btn.disabled=true;setCheckLocDot('','\u062C\u0627\u0631\u064A...');
   if(!navigator.geolocation){setCheckLocDot('err','GPS \u063A\u064A\u0631 \u0645\u062F\u0639\u0648\u0645');btn.disabled=false;return;}
@@ -2436,11 +2535,11 @@ function refreshCheckLoc(){
 }
 function setCheckLocDot(state,txt){const d=document.getElementById('checkLocDot');d.className='dot'+(state==='on'?' on':state==='err'?' err':'');document.getElementById('checkLocTxt').textContent=txt;}
 async function runGpsNearestAfterMatch(){
-  const orsKey=document.getElementById('orsKey').value.trim();
+  const orsKey=getOrsKey().trim();
   const myLat=document.getElementById('gpsMyLat').value.trim();
   const myLon=document.getElementById('gpsMyLon').value.trim();
   if(!orsKey||!myLat||!myLon){
-    showCheckStatus('ok','\u2705 \u062A\u0645\u062A \u0627\u0644\u0645\u0637\u0627\u0628\u0642\u0629 \u2014 \u0644\u0645 \u064A\u064F\u062D\u0633\u0628 \u0623\u0642\u0631\u0628 \u0627\u0644\u0645\u0631\u0643\u0628\u0627\u062A (\u0623\u062F\u062E\u0644 \u0645\u0641\u062A\u0627\u062D ORS \u0648\u0645\u0648\u0642\u0639\u0643 \u0623\u0648\u0644\u0627\u064B).');
+    showCheckStatus('ok','\u2705 \u062A\u0645\u062A \u0627\u0644\u0645\u0637\u0627\u0628\u0642\u0629 \u2014 \u0644\u0645 \u064A\u064F\u062D\u0633\u0628 \u0623\u0642\u0631\u0628 \u0627\u0644\u0645\u0631\u0643\u0628\u0627\u062A (\u0623\u0636\u0641 \u0645\u0641\u062A\u0627\u062D ORS \u0645\u0646 \u2699 \u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A \u0648\u062D\u062F\u062F \u0645\u0648\u0642\u0639\u0643).');
     return;
   }
   document.getElementById('gpsProgress').style.display='';
@@ -2559,7 +2658,6 @@ async function fcStartFreshRec(){
   fcAllChunks=[];fcCurChunks=[];fcGpsPoints=[];fcRecSecs=0;fcLiveBlob=null;fcAudioUrl=null;
   document.getElementById('fcPinCount').textContent='0 \u0646\u0642\u0637\u0629';
   document.getElementById('fcGLog').innerHTML='';
-  document.getElementById('fcConvertingLbl').classList.remove('show');
   await fcDoStartRec();
 }
 async function fcContinueRec(){fcCurChunks=[];fcHideChoices();await fcDoStartRec();}
@@ -2576,17 +2674,13 @@ async function fcDoStartRec(){
       fcAllChunks=[...fcAllChunks,...fcCurChunks];
       const raw=new Blob(fcAllChunks,{type:fcMediaRec.mimeType||'audio/webm'});
       document.getElementById('fcRecChoices').classList.remove('show');
-      document.getElementById('fcConvertingLbl').classList.add('show');
       document.getElementById('fcRecLbl').textContent='';
-      (async()=>{
-        fcLiveBlob=await convertToMp3(raw);
-        if(fcAudioUrl)URL.revokeObjectURL(fcAudioUrl);
-        fcAudioUrl=URL.createObjectURL(fcLiveBlob);
-        setAudioSrc('fc',fcAudioUrl);
-        document.getElementById('fcAudioWrap').classList.add('show');
-        document.getElementById('fcConvertingLbl').classList.remove('show');
-        fcShowChoices();fcCheckReady();playStopSound();
-      })();
+      fcLiveBlob=raw;
+      if(fcAudioUrl)URL.revokeObjectURL(fcAudioUrl);
+      fcAudioUrl=URL.createObjectURL(fcLiveBlob);
+      setAudioSrc('fc',fcAudioUrl);
+      document.getElementById('fcAudioWrap').classList.add('show');
+      fcShowChoices();fcCheckReady();playStopSound();
     };
     fcMediaRec.start(500);
     if(fcGpsMode==='auto'){
@@ -2646,7 +2740,7 @@ function fcUpdateTimerUI(){
 function fcDownloadAudio(){
   if(!fcLiveBlob)return;
   const ts=new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
-  triggerDownload(fcLiveBlob,'\u062A\u0634\u064A\u0643_'+ts+'.mp3');
+  triggerDownload(fcLiveBlob,'\u062A\u0634\u064A\u0643_'+ts+'.'+audioBlobExt(fcLiveBlob));
 }
 
 // ── Field check GPS helpers ───────────────────────────
@@ -2870,7 +2964,7 @@ async function fcDoCheck(){
 
   fcShowStatus('proc','جاري تفريغ الصوت …',true);
   const fd=new FormData();
-  const ext=fcLiveBlob.type&&fcLiveBlob.type.includes('mp3')?'mp3':'webm';
+  const ext=audioBlobExt(fcLiveBlob);
   fd.append('audio',fcLiveBlob,'recording.'+ext);
   fd.append('gps_data',JSON.stringify(fcGpsPoints));
   fd.append('api_key',apiKey);
@@ -2956,7 +3050,6 @@ async function fcDoCheck(){
 function fcResetRecUI(){
   fcLiveBlob=null;fcAllChunks=[];fcGpsPoints=[];fcRecSecs=0;fcRecState='idle';
   document.getElementById('fcRecChoices').classList.remove('show');
-  document.getElementById('fcConvertingLbl').classList.remove('show');
   document.getElementById('fcRecLbl').textContent='اضغط للتسجيل جديد';
   document.getElementById('fcGCnt').textContent='0';
   document.getElementById('fcPinCount').textContent='0 نقطة';
@@ -2972,14 +3065,13 @@ function fcRenderExtracted(){
   fcAllRows.forEach((row,i)=>{
     const tr=document.createElement('tr');
     tr.innerHTML=
-      '<td class="td-num">'+(i+1)+'</td>'+
       '<td class="td-plate">'+esc(row.full_plate||'')+'</td>'+
-      '<td>'+esc(row.vehicle_type||'')+'</td>'+
+      '<td class="td-gps">'+esc(row.gps||'—')+'</td>'+
+      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
       '<td>'+esc(row.street_name||'')+'</td>'+
       '<td class="td-locdetails" style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
+      '<td>'+esc(row.vehicle_type||'')+'</td>'+
       '<td>'+esc(row.recorder_name||'')+'</td>'+
-      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
-      '<td class="td-gps">'+esc(row.gps||'—')+'</td>'+
       '<td class="td-gps">'+esc(streetLoc||'—')+'</td>';
     body.appendChild(tr);
   });
@@ -3000,15 +3092,14 @@ function fcRenderMatched(){
       ? '<a class="maps-link" href="'+mapsUrl+'" target="_blank" rel="noopener">&#x1F5FA;&#xFE0F; فتح الخريطة</a>'
       : '—';
     tr.innerHTML=
-      '<td class="td-num">'+(i+1)+'</td>'+
       '<td><span class="td-plate matched">'+esc(row.full_plate||'')+'</span></td>'+
       '<td>'+mapCell+'</td>'+
-      '<td>'+esc(row.vehicle_type||'')+'</td>'+
+      '<td class="td-gps">'+esc(gps||'—')+'</td>'+
+      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
       '<td>'+esc(row.street_name||'')+'</td>'+
       '<td class="td-locdetails" style="font-size:.78rem;color:var(--dim2)">'+esc(row.location_details||'')+'</td>'+
+      '<td>'+esc(row.vehicle_type||'')+'</td>'+
       '<td>'+esc(row.recorder_name||'')+'</td>'+
-      '<td style="font-family:var(--mono);font-size:.78rem">'+esc(row.recording_date||'')+'</td>'+
-      '<td class="td-gps">'+esc(gps||'—')+'</td>'+
       '<td class="td-gps">'+esc(streetLoc||'—')+'</td>';
     body.appendChild(tr);
   });
@@ -3204,19 +3295,45 @@ function applyAdminNavVisibility(){
   function getAccess(){ return localStorage.getItem(ACCESS)||''; }
   function getRefresh(){ return localStorage.getItem(REFRESH)||''; }
   function setTokens(a,r){ localStorage.setItem(ACCESS,a); localStorage.setItem(REFRESH,r); }
-  function clearTokens(){ localStorage.removeItem(ACCESS); localStorage.removeItem(REFRESH); }
+  function clearTokens(){
+    localStorage.removeItem(ACCESS);
+    localStorage.removeItem(REFRESH);
+    try{ localStorage.removeItem('auth_is_admin'); }catch(_){}
+    stopProactiveRefresh();
+    if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
+  }
+  const TOKEN_REFRESH_MS=12*60*1000;
+  let _proactiveTimer=null;
+  function stopProactiveRefresh(){ if(_proactiveTimer){clearInterval(_proactiveTimer);_proactiveTimer=null;} }
+  function startProactiveRefresh(){
+    stopProactiveRefresh();
+    if(!getRefresh()) return;
+    _proactiveTimer=setInterval(function(){ refreshToken().catch(function(){}); }, TOKEN_REFRESH_MS);
+  }
   function showLock(show){ lock.classList.toggle('show',show); if(wrap) wrap.style.display=show?'none':'block'; }
   function setMsg(t,ok=false){ msg.style.color=ok?'var(--green)':'var(--red)'; msg.textContent=t||''; }
 
+  const _fetch=window.fetch.bind(window);
+
+  let _refreshInFlight=null;
   async function refreshToken(){
-    const rt=getRefresh(); if(!rt) throw new Error('لا يوجد refresh token');
-    const r=await fetch('/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json','X-Device-Id':getDeviceId()},body:JSON.stringify({refresh_token:rt})});
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(j.detail||'Refresh failed');
-    setTokens(j.access_token,j.refresh_token);
-    if(typeof j.is_admin==='boolean') localStorage.setItem('auth_is_admin', j.is_admin?'1':'0');
-    if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
-    return j.access_token;
+    if(_refreshInFlight) return _refreshInFlight;
+    _refreshInFlight=(async function(){
+      try{
+        const rt=getRefresh(); if(!rt) throw new Error('لا يوجد refresh token');
+        const r=await _fetch('/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json','X-Device-Id':getDeviceId()},body:JSON.stringify({refresh_token:rt})});
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok) throw new Error(j.detail||'Refresh failed');
+        setTokens(j.access_token,j.refresh_token);
+        if(typeof j.is_admin==='boolean') localStorage.setItem('auth_is_admin', j.is_admin?'1':'0');
+        if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
+        startProactiveRefresh();
+        return j.access_token;
+      }finally{
+        _refreshInFlight=null;
+      }
+    })();
+    return _refreshInFlight;
   }
 
   function pathNeedsAuth(urlStr){
@@ -3253,7 +3370,6 @@ function applyAdminNavVisibility(){
     if(status===422) return 'البيانات غير صالحة — تأكد من طول اسم المستخدم (3 أحرف على الأقل) وكلمة المرور (6 على الأقل).';
     return detailText||'فشل تسجيل الدخول.';
   }
-  const _fetch=window.fetch.bind(window);
   window.fetch=async function(input,init){
     const urlStr=(typeof input==='string')?input:(input&&input.url)||'';
     const needsAuth=pathNeedsAuth(urlStr);
@@ -3299,6 +3415,7 @@ function applyAdminNavVisibility(){
       setTokens(j.access_token,j.refresh_token);
       localStorage.setItem('auth_is_admin', j.is_admin===true?'1':'0');
       if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
+      startProactiveRefresh();
       setMsg('تم تسجيل الدخول',true);
       showLock(false);
       try{ await runPostLoginPermissions(); }catch(_){}
@@ -3307,7 +3424,6 @@ function applyAdminNavVisibility(){
 
   window.authLogout=function(){
     clearTokens();
-    try{ localStorage.removeItem('auth_is_admin'); }catch(_){}
     showLock(true);
     setMsg('تم تسجيل الخروج',true);
     if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
@@ -3316,7 +3432,6 @@ function applyAdminNavVisibility(){
   window.authFullLogout=function(){
     try{ const sm=document.getElementById('settingsModal'); if(sm) sm.classList.remove('open'); }catch(_){}
     clearTokens();
-    try{ localStorage.removeItem('auth_is_admin'); }catch(_){}
     showLock(true);
     setMsg('تم تسجيل الخروج',true);
     if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
@@ -3404,7 +3519,7 @@ function applyAdminNavVisibility(){
   window.adminDeleteUser=async function(id){
     const u=(window._adminUsersCache||[]).find(x=>x&&x.id===id);
     const name = (u&&u.username) ? u.username : ('ID '+id);
-    if(!confirm('هل تريد حذف الحساب نهائياً من قاعدة البيانات؟\\n\\n'+name)) return;
+    if(!confirm('هل تريد حذف الحساب نهائياً من قاعدة البيانات؟\n\n'+name)) return;
     const m=document.getElementById('adminMsg');
     try{
       const r=await fetch('/admin/users/'+id,{method:'DELETE'});
@@ -3429,8 +3544,18 @@ function applyAdminNavVisibility(){
 
   devInput.value=getDeviceId();
   showLock(!getAccess());
-  if(getAccess()) syncAuthProfile();
-  else if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
+  let _lastVisRefresh=0;
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState!=='visible'||!getRefresh()) return;
+    const t=Date.now();
+    if(t-_lastVisRefresh<120000) return;
+    _lastVisRefresh=t;
+    refreshToken().catch(function(){});
+  });
+  if(getAccess()){
+    startProactiveRefresh();
+    syncAuthProfile();
+  }else if(typeof applyAdminNavVisibility==='function') applyAdminNavVisibility();
 })();
 </script>
 
